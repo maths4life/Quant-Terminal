@@ -1,15 +1,13 @@
 import streamlit as st
-import yfinance as yf
-import pandas as pd
 from datetime import datetime, time as dtime
 import pytz
 from streamlit_lightweight_charts import renderLightweightCharts
 from utils.helpers import (
-    compute_rsi,
     fmt_indian,
     is_nse_open,
     rsi_label,
 )
+from utils.data import fetch_data
 
 # ── PAGE CONFIG ───────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -456,45 +454,6 @@ html, body, .stApp {
 """, unsafe_allow_html=True)
 
 
-# ── DATA FETCH ────────────────────────────────────────────────────────────────
-
-@st.cache_data(ttl=3600)
-def fetch_data(ticker, period, interval):
-    df = yf.download(ticker, period=period, interval=interval, auto_adjust=False)
-    if df.empty:
-        return None
-    df.columns = [col[0] if isinstance(col, tuple) else col for col in df.columns]
-    df = df.reset_index()
-    date_col = "Datetime" if "Datetime" in df.columns else "Date"
-    df = df.rename(columns={date_col: "Date"})
-    df["Date"] = pd.to_datetime(df["Date"])
-    df["time"] = df["Date"].dt.strftime("%Y-%m-%d")
-    df["MA20"] = df["Close"].rolling(20).mean()
-    df["MA50"] = df["Close"].rolling(50).mean()
-    df["RSI"]  = compute_rsi(df["Close"])
-    df["TP"]   = (df["High"] + df["Low"] + df["Close"]) / 3
-    df["VWAP"] = (df["TP"] * df["Volume"]).cumsum() / df["Volume"].cumsum()
-    return df
-
-
-@st.cache_data(ttl=86400)
-def fetch_52w(ticker):
-    df = yf.download(ticker, period="1y", interval="1d", auto_adjust=False)
-    if df.empty:
-        return None, None
-    df.columns = [col[0] if isinstance(col, tuple) else col for col in df.columns]
-    return float(df["High"].max()), float(df["Low"].min())
-
-
-@st.cache_data(ttl=86400)
-def fetch_avg_vol(ticker):
-    df = yf.download(ticker, period="2mo", interval="1d", auto_adjust=False)
-    if df.empty:
-        return None
-    df.columns = [col[0] if isinstance(col, tuple) else col for col in df.columns]
-    return int(df["Volume"].tail(20).mean())
-
-
 # ── SESSION STATE ─────────────────────────────────────────────────────────────
 if "recent" not in st.session_state:
     st.session_state.recent = []
@@ -636,44 +595,46 @@ with st.sidebar:
 
 # ── FETCH DATA ────────────────────────────────────────────────────────────────
 with st.spinner(f"Loading {ticker}  ·  {period}  ·  {interval_label}…"):
-    df         = fetch_data(ticker, period, interval)
-    w52_h, w52_l = fetch_52w(ticker)
-    true_avg_vol = fetch_avg_vol(ticker)
+    result = fetch_data(ticker, period, interval)
 
-if df is None:
+if result is None:
     st.error(f"No data found for '{ticker}'")
     st.info("Try: RELIANCE.NS  ·  INFY.NS  ·  TCS.NS  ·  HDFCBANK.NS  ·  ^NSEI")
     st.stop()
+
+df, stats = result
 
 if len(df) < 55:
     st.warning("Limited history — MA50 / RSI readings may be inaccurate. Try a longer period.")
 
 add_recent(ticker)
 
-last  = df.iloc[-1]
-prev  = df.iloc[-2]
-close      = float(last["Close"])
+last = df.iloc[-1]
+prev = df.iloc[-2]
+
+close = float(last["Close"])
 prev_close = float(prev["Close"])
-change     = ((close - prev_close) / prev_close) * 100
+
+change = ((close - prev_close) / prev_close) * 100
 change_abs = close - prev_close
 
-if w52_h is None:
-    w52_h = float(df["High"].max())
-if w52_l is None:
-    w52_l = float(df["Low"].min())
+# Read values from stats dictionary
+w52_h = stats["high_52w"]
+w52_l = stats["low_52w"]
 
 pct_from_high = ((close - w52_h) / w52_h) * 100
-pct_from_low  = ((close - w52_l) / w52_l) * 100
+pct_from_low = ((close - w52_l) / w52_l) * 100
 
-last_ma20  = float(df["MA20"].dropna().iloc[-1])  if not df["MA20"].dropna().empty  else None
-last_ma50  = float(df["MA50"].dropna().iloc[-1])  if not df["MA50"].dropna().empty  else None
-last_rsi   = float(df["RSI"].dropna().iloc[-1])   if not df["RSI"].dropna().empty   else None
-last_vwap  = float(df["VWAP"].dropna().iloc[-1])  if not df["VWAP"].dropna().empty  else None
-avg_vol20  = true_avg_vol if true_avg_vol else (int(df["Volume"].tail(20).mean()) if "Volume" in df.columns else None)
+last_ma20 = float(df["MA20"].dropna().iloc[-1]) if not df["MA20"].dropna().empty else None
+last_ma50 = float(df["MA50"].dropna().iloc[-1]) if not df["MA50"].dropna().empty else None
+last_rsi = float(df["RSI"].dropna().iloc[-1]) if not df["RSI"].dropna().empty else None
+last_vwap = float(df["VWAP"].dropna().iloc[-1]) if not df["VWAP"].dropna().empty else None
+
+avg_vol20 = stats["avg_volume_20"]
 
 rsi_txt, rsi_color = rsi_label(last_rsi)
-date_str = last["Date"].strftime("%d %b %Y") if hasattr(last["Date"], "strftime") else ""
 
+date_str = last["Date"].strftime("%d %b %Y") if hasattr(last["Date"], "strftime") else ""
 # ── HERO CARD ─────────────────────────────────────────────────────────────────
 change_class = "up" if change >= 0 else "down"
 arrow = "▲" if change >= 0 else "▼"
@@ -703,12 +664,13 @@ st.markdown(f"""
 # ── METRIC ROW 1 ──────────────────────────────────────────────────────────────
 st.markdown('<div class="qt-section-title">Market Snapshot</div>', unsafe_allow_html=True)
 c1, c2, c3, c4, c5, c6 = st.columns(6)
-c1.metric("Last Price", f"₹{close:,.2f}",        f"{change:+.2f}%")
-c2.metric("Day High",   f"₹{float(last['High']):,.2f}")
-c3.metric("Day Low",    f"₹{float(last['Low']):,.2f}")
-c4.metric("Volume",     fmt_indian(float(last["Volume"])) if "Volume" in df.columns else "—")
-c5.metric("52W High",   f"₹{w52_h:,.2f}",         f"{abs(pct_from_high):.1f}% below ATH")
-c6.metric("52W Low",    f"₹{w52_l:,.2f}",          f"{pct_from_low:.1f}% above")
+
+c1.metric("Last Price", f"₹{close:,.2f}", f"{change:+.2f}%")
+c2.metric("Day High", f"₹{stats['day_high']:,.2f}")
+c3.metric("Day Low", f"₹{stats['day_low']:,.2f}")
+c4.metric("Volume", fmt_indian(stats["volume"]) if "Volume" in df.columns else "—")
+c5.metric("52W High", f"₹{w52_h:,.2f}", f"{abs(pct_from_high):.1f}% below ATH")
+c6.metric("52W Low", f"₹{w52_l:,.2f}", f"{pct_from_low:.1f}% above")
 
 # ── METRIC ROW 2 ──────────────────────────────────────────────────────────────
 st.markdown('<div class="qt-section-title">Technical Indicators</div>', unsafe_allow_html=True)
