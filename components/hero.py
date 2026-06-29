@@ -11,6 +11,8 @@ def render_hero(
     change_abs,
     rsi_txt,
     date_str,
+    company_name="",
+    profile_html="",
 ):
     change_class = "up" if change >= 0 else "down"
     arrow = "▲" if change >= 0 else "▼"
@@ -26,6 +28,8 @@ def render_hero(
             <span class="qt-tag">Updated {date_str}</span>
         </div>
         <div class="qt-ticker">{ticker}<span class="sep">/</span><span style="color:var(--text-secondary);font-size:1.1rem;">EQUITY</span></div>
+        {f'<div class="qt-company-name">{company_name}</div>' if company_name else ''}
+        {profile_html}
         <div class="qt-meta">Live institutional view · Yahoo Finance feed · IST {ist_now.strftime('%H:%M')}</div>
         </div>
         <div class="qt-hero-right">

@@ -420,6 +420,44 @@ html, body, .stApp {
     content:''; flex:1; height:1px; background: var(--border);
 }
 
+/* ── COMPANY NAME + PROFILE CHIPS (hero) ── */
+.qt-company-name {
+    color: var(--text-secondary); font-size: .85rem; font-weight: 500;
+    margin-top: -.1rem;
+}
+.qt-profile-row {
+    display:flex; gap:.4rem; flex-wrap:wrap; margin: .1rem 0 .15rem 0;
+}
+.qt-profile-chip {
+    background: rgba(255,255,255,.04); border: 1px solid var(--border);
+    color: var(--text-secondary); font-size: .68rem; font-weight: 500;
+    padding: .22rem .6rem; border-radius: 6px; letter-spacing: .02em;
+}
+
+/* ── 52-WEEK RANGE BAR ── */
+.qt-range-wrap { margin: .9rem 0 .4rem 0; animation: fade-up .4s ease-out both; }
+.qt-range-label {
+    display:flex; justify-content:space-between;
+    font-family:'JetBrains Mono', monospace; font-size:.68rem;
+    color: var(--text-tertiary); margin-bottom:.45rem; letter-spacing:.02em;
+}
+.qt-range-track {
+    position: relative; height: 6px; border-radius: 999px;
+    background: rgba(255,255,255,.06);
+}
+.qt-range-fill {
+    position:absolute; top:0; left:0; height:100%; border-radius:999px;
+    background: linear-gradient(90deg, var(--bearish), var(--accent));
+    opacity: .35;
+}
+.qt-range-marker {
+    position:absolute; top:50%; width:12px; height:12px; border-radius:50%;
+    background: var(--text-primary); border: 2px solid var(--accent);
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 4px rgba(0,229,180,.18), 0 2px 8px rgba(0,0,0,.5);
+}
+
+
 /* Responsive */
 @media (max-width: 900px) {
     .qt-hero-grid { grid-template-columns: 1fr; }
@@ -427,4 +465,116 @@ html, body, .stApp {
     .qt-header-search { display:none; }
     .qt-price { font-size: 1.9rem; }
     .qt-ticker { font-size: 1.4rem; }
+}
+
+/* ================= SEARCH CARD ================= */
+.qt-search-card{
+
+    background:linear-gradient(180deg,#141A26,#10151E);
+
+    border:1px solid var(--border);
+
+    border-radius:16px;
+
+    padding:22px;
+
+    margin-bottom:18px;
+
+}
+
+.qt-search-title{
+
+    font-size:15px;
+
+    font-weight:700;
+
+    color:white;
+
+    letter-spacing:.08em;
+
+    margin-bottom:4px;
+
+}
+
+.qt-search-subtitle{
+
+    color:var(--text-secondary);
+
+    font-size:13px;
+
+    margin-bottom:20px;
+
+}
+
+.qt-search-small-title{
+
+    margin-top:18px;
+
+    margin-bottom:10px;
+
+    color:var(--text-tertiary);
+
+    text-transform:uppercase;
+
+    letter-spacing:.12em;
+
+    font-size:11px;
+
+    font-weight:600;
+
+}
+
+/* ===== SEARCH BOX ===== */
+
+.stTextInput input{
+    background:#111722 !important;
+    border:1px solid var(--border) !important;
+    border-radius:12px !important;
+
+    color:white !important;
+
+    font-size:15px !important;
+
+    font-family:"JetBrains Mono", monospace !important;
+
+    padding:14px 16px !important;
+
+    transition:.2s;
+}
+
+.stTextInput input:focus{
+    border-color:var(--accent) !important;
+
+    box-shadow:0 0 0 3px rgba(0,229,180,.15) !important;
+}
+
+/* ===== SEARCH BUTTON ===== */
+
+.stButton button{
+
+    border-radius:12px !important;
+
+    font-weight:600 !important;
+
+    height:50px !important;
+
+    background:linear-gradient(
+        135deg,
+        #00E5B4,
+        #00B894
+    ) !important;
+
+    color:#081117 !important;
+
+    border:none !important;
+
+    transition:.2s;
+}
+
+.stButton button:hover{
+
+    transform:translateY(-1px);
+
+    box-shadow:0 8px 20px rgba(0,229,180,.25);
+
 }

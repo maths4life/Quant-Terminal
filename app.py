@@ -8,12 +8,17 @@ from components.hero import render_hero
 from components.chart import render_chart
 from components.metrics import render_metrics
 from components.footer import render_footer
+from components.search import render_search
+from components.profile import render_profile_strip, render_key_stats
 from datetime import datetime
 import pytz
 
-from utils.data import fetch_data
+from utils.data import fetch_data, fetch_company_info
 from utils.helpers import (
     fmt_indian,
+    fmt_mcap,
+    fmt_ratio,
+    fmt_pct_val,
     is_nse_open,
     rsi_label,
 )
@@ -58,48 +63,59 @@ def add_recent(ticker):
         st.session_state.recent.insert(0, ticker)
         st.session_state.recent = st.session_state.recent[:5]
 
+if "ticker" not in st.session_state:
+    st.session_state.ticker = "RELIANCE.NS"
+
 # ── TOP HEADER ────────────────────────────────────────────────────────────────
 market_open, market_status = is_nse_open()
-
-ist_now = datetime.now(pytz.timezone("Asia/Kolkata"))
 dot_class = "live" if market_open else "closed"
 
 render_navbar(
+    current_ticker=st.session_state.ticker,
     market_open=market_open,
     market_status=market_status,
-    icon_search=ICON_SEARCH,
     icon_clock=ICON_CLOCK,
     icon_bell=ICON_BELL,
     icon_gear=ICON_GEAR,
 )
 
+new_ticker, analyze = render_search(
+    current_ticker=st.session_state.ticker,
+    recent=st.session_state.recent,
+)
+if analyze:
+    st.session_state.ticker = new_ticker.upper().strip()
+
+# BUG 2 FIX: always read ticker from session_state AFTER render_search
+# so the current run uses the just-updated value, not the stale pre-render value.
+ticker = st.session_state.ticker
 
 # ── SIDEBAR ───────────────────────────────────────────────────────────────────
 
 sidebar = render_sidebar(
-    recent=st.session_state.recent,
-    market_status=market_status,
-    dot_class=dot_class,
-    ICON_SEARCH=ICON_SEARCH,
-    ICON_STAR=ICON_STAR,
-    ICON_CLOCK=ICON_CLOCK,
-    ICON_TIME=ICON_TIME,
-    ICON_LAYERS=ICON_LAYERS,
-    ICON_CANDLE=ICON_CANDLE,
-    ICON_GEAR=ICON_GEAR,
+    market_status,
+    dot_class,
+    ICON_TIME,
+    ICON_LAYERS,
+    ICON_CANDLE,
+    ICON_GEAR,
 )
-ticker = sidebar["ticker"]
-period = sidebar["period"]
-interval = sidebar["interval"]
-interval_label = sidebar["interval_label"]
 
-show_ma20 = sidebar["show_ma20"]
-show_ma50 = sidebar["show_ma50"]
-show_vwap = sidebar["show_vwap"]
-show_prevc = sidebar["show_prevc"]
+timeframe = sidebar["timeframe"]
+indicators = sidebar["indicators"]
+panels = sidebar["panels"]
 
-show_volume = sidebar["show_volume"]
-show_rsi = sidebar["show_rsi"]
+period = timeframe["period"]
+interval = timeframe["interval"]
+interval_label = timeframe["label"]
+
+show_ma20 = indicators["ma20"]
+show_ma50 = indicators["ma50"]
+show_vwap = indicators["vwap"]
+show_prevc = indicators["prev_close"]
+
+show_volume = panels["volume"]
+show_rsi = panels["rsi"]
 
 
 # ── FETCH DATA ────────────────────────────────────────────────────────────────
@@ -144,6 +160,14 @@ avg_vol20 = stats["avg_volume_20"]
 rsi_txt, rsi_color = rsi_label(last_rsi)
 
 date_str = last["Date"].strftime("%d %b %Y") if hasattr(last["Date"], "strftime") else ""
+
+# ── COMPANY INFO (sector / industry / fundamentals) ───────────────────────────
+info = fetch_company_info(ticker)
+profile_html = render_profile_strip(info)
+company_name = info.get("name") or ""
+if company_name.upper() == ticker.upper():
+    company_name = ""
+
 # ── HERO CARD ─────────────────────────────────────────────────────────────────
 render_hero(
     ticker=ticker,
@@ -154,6 +178,8 @@ render_hero(
     change_abs=change_abs,
     rsi_txt=rsi_txt,
     date_str=date_str,
+    company_name=company_name,
+    profile_html=profile_html,
 )
 
 # ── METRIC ROW  ──────────────────────────────────────────────────────────────
@@ -171,6 +197,17 @@ render_metrics(
     last_rsi=last_rsi,
     avg_vol20=avg_vol20,
     fmt_indian=fmt_indian,
+)
+
+# ── KEY STATISTICS + 52W RANGE ────────────────────────────────────────────────
+render_key_stats(
+    info=info,
+    close=close,
+    w52_h=w52_h,
+    w52_l=w52_l,
+    fmt_mcap=fmt_mcap,
+    fmt_ratio=fmt_ratio,
+    fmt_pct_val=fmt_pct_val,
 )
 
 # ── CHART HELPERS ─────────────────────────────────────────────────────────────

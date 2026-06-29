@@ -45,9 +45,10 @@ def render_chart(
     ICON_LAYERS,
     ICON_REFRESH,
 ):
+    # BUG 3 FIX: function body was incorrectly unindented (comment at module level).
+    # All code below is now properly inside render_chart.
 
-
-# ── CANDLE DATA ───────────────────────────────────────────────────────────────
+    # ── CANDLE DATA ───────────────────────────────────────────────────────────────
     candles = (
         df[["time","Open","High","Low","Close"]]
         .rename(columns={"Open":"open","High":"high","Low":"low","Close":"close"})
@@ -151,7 +152,6 @@ def render_chart(
     for i, h in enumerate(heights):
         charts_to_render[i]["chart"]["height"] = h
 
-
     # ── CHART SHELL + TOOLBAR ─────────────────────────────────────────────────────
     def pill(on, label, swatch=None):
         cls = "qt-pill on" if on else "qt-pill off"
@@ -183,7 +183,6 @@ def render_chart(
     </div>
     </div>
     """, unsafe_allow_html=True)
-
 
     # ── RENDER ────────────────────────────────────────────────────────────────────
     try:
