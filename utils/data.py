@@ -2,16 +2,14 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 
-from utils.helpers import compute_rsi
+from utils.indicators import compute_rsi, compute_moving_averages, compute_vwap
 
 
-@st.cache_data(ttl=3600)
-def fetch_company_info(ticker):
-    """
-    Pulls fundamental / descriptive fields for the company-profile strip
-    and key-statistics panel. Indices (e.g. ^NSEI) won't have most of
-    these fields, so every lookup is defensive and falls back to None.
-    """
+@st.cache_data(ttl=3600, show_spinner=False)
+def fetch_company_info(ticker: str) -> dict:
+    """Fundamental / descriptive fields for the profile strip and key-stats
+    panel. Indices (e.g. ^NSEI) won't have most of these fields, so every
+    lookup is defensive and falls back to None."""
     try:
         info = yf.Ticker(ticker).info
     except Exception:
@@ -25,32 +23,38 @@ def fetch_company_info(ticker):
         return None
 
     return {
-        "name":            g("longName", "shortName") or ticker,
-        "sector":          g("sector"),
-        "industry":        g("industry"),
-        "exchange":        g("exchange", "fullExchangeName"),
-        "currency":        g("currency"),
-        "market_cap":      g("marketCap"),
-        "pe":              g("trailingPE"),
-        "forward_pe":      g("forwardPE"),
-        "pb":              g("priceToBook"),
-        "eps":             g("trailingEps"),
-        "beta":            g("beta"),
-        "dividend_yield":  g("dividendYield"),
-        "book_value":      g("bookValue"),
-        "fifty_two_high":  g("fiftyTwoWeekHigh"),
-        "fifty_two_low":   g("fiftyTwoWeekLow"),
+        "name": g("longName", "shortName") or ticker,
+        "sector": g("sector"),
+        "industry": g("industry"),
+        "exchange": g("exchange", "fullExchangeName"),
+        "currency": g("currency"),
+        "market_cap": g("marketCap"),
+        "pe": g("trailingPE"),
+        "forward_pe": g("forwardPE"),
+        "pb": g("priceToBook"),
+        "eps": g("trailingEps"),
+        "beta": g("beta"),
+        "dividend_yield": g("dividendYield"),
+        "book_value": g("bookValue"),
+        "fifty_two_high": g("fiftyTwoWeekHigh"),
+        "fifty_two_low": g("fiftyTwoWeekLow"),
     }
 
 
-@st.cache_data(ttl=3600)
-def fetch_data(ticker, period="1y", interval="1d"):
-    """
-    Downloads market data and computes all indicators/statistics
-    needed by the application.
-    """
+def _slice_to_period(df: pd.DataFrame, period: str) -> pd.DataFrame:
+    windows = {"1mo": 22, "3mo": 66, "6mo": 132, "1y": 252}
+    if period in windows:
+        return df.tail(windows[period]).copy()
+    return df.copy()
 
-    # Download enough history for indicators and 52-week stats
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def fetch_data(ticker: str, period: str = "1y", interval: str = "1d"):
+    """Downloads market data and computes all indicators/statistics needed
+    by the app. Returns (plot_df, stats) or None if the ticker has no data."""
+
+    # Daily interval always pulls 2y of history so MA50/52w stats stay
+    # accurate even when the user is viewing a shorter window.
     history_period = "2y" if interval == "1d" else period
 
     df = yf.download(
@@ -65,58 +69,42 @@ def fetch_data(ticker, period="1y", interval="1d"):
         return None
 
     df.columns = [c[0] if isinstance(c, tuple) else c for c in df.columns]
-
     df = df.reset_index()
 
     date_col = "Datetime" if "Datetime" in df.columns else "Date"
-
     df.rename(columns={date_col: "Date"}, inplace=True)
-
     df["Date"] = pd.to_datetime(df["Date"])
-
     df["time"] = df["Date"].dt.strftime("%Y-%m-%d")
 
-    # Technical Indicators (computed on full history for accuracy)
-    df["MA20"] = df["Close"].rolling(20).mean()
-    df["MA50"] = df["Close"].rolling(50).mean()
-    df["RSI"]  = compute_rsi(df["Close"])
+    # Indicators computed on the full fetched history for accuracy.
+    df = compute_moving_averages(df)
+    df["RSI"] = compute_rsi(df["Close"])
 
-    # Latest candle
-    latest = df.iloc[-1]
+    # BUG FIX: don't blindly trust df.iloc[-1]. Yahoo Finance regularly
+    # returns a trailing row with NaN OHLCV for an in-progress/incomplete
+    # period (e.g. weekly/monthly bars, or a session that just opened).
+    # Using that row directly propagated NaN into every "latest price"
+    # figure downstream (hero price, day high/low, volume).
+    valid_rows = df.dropna(subset=["Open", "High", "Low", "Close", "Volume"])
+    if valid_rows.empty:
+        return None
 
-    # Use the last 252 trading sessions for 52-week statistics
+    latest = valid_rows.iloc[-1]
     yearly = df.tail(252)
 
     stats = {
-        "day_high":      float(latest["High"]),
-        "day_low":       float(latest["Low"]),
-        "day_open":      float(latest["Open"]),
-        "day_close":     float(latest["Close"]),
-        "volume":        int(latest["Volume"]),
-        "avg_volume_20": int(yearly["Volume"].tail(20).mean()),
-        "high_52w":      float(yearly["High"].max()),
-        "low_52w":       float(yearly["Low"].min()),
+        "day_high": float(latest["High"]),
+        "day_low": float(latest["Low"]),
+        "day_open": float(latest["Open"]),
+        "day_close": float(latest["Close"]),
+        "volume": int(latest["Volume"]),
+        "avg_volume_20": int(yearly["Volume"].dropna().tail(20).mean()),
+        "high_52w": float(yearly["High"].max()),
+        "low_52w": float(yearly["Low"].min()),
     }
 
-    # Slice to the requested plot window
-    if history_period != period:
-        if period == "1mo":
-            plot_df = df.tail(22).copy()
-        elif period == "3mo":
-            plot_df = df.tail(66).copy()
-        elif period == "6mo":
-            plot_df = df.tail(132).copy()
-        elif period == "1y":
-            plot_df = df.tail(252).copy()
-        else:
-            plot_df = df.copy()
-    else:
-        plot_df = df.copy()
-
-    # BUG 5 FIX: compute VWAP on the plot window only, not the full history.
-    # Cumulative VWAP on 2y data shown over a 1mo window produces nonsense values.
+    plot_df = _slice_to_period(df, period) if history_period != period else df.copy()
     plot_df = plot_df.reset_index(drop=True)
-    tp = (plot_df["High"] + plot_df["Low"] + plot_df["Close"]) / 3
-    plot_df["VWAP"] = (tp * plot_df["Volume"]).cumsum() / plot_df["Volume"].cumsum()
+    plot_df = compute_vwap(plot_df)  # windowed VWAP — see utils.indicators
 
     return plot_df, stats

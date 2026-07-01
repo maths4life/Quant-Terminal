@@ -1,40 +1,34 @@
 import streamlit as st
-import streamlit.components.v1 as components
 from datetime import datetime
 import pytz
 
+IST = pytz.timezone("Asia/Kolkata")
 
-def render_navbar(
-    current_ticker,
-    market_open,
-    market_status,
-    icon_clock,
-    icon_bell,
-    icon_gear,
-):
-    ist_now = datetime.now(pytz.timezone("Asia/Kolkata"))
+
+def render_navbar(market_open, market_status, icon_clock, icon_bell, icon_gear):
+    """Top brand bar. Rendered with st.markdown (not components.html) so it
+    shares the page's stylesheet and CSS variables, and so its height can
+    flex naturally instead of clipping/overlapping on smaller screens."""
+    ist_now = datetime.now(IST)
     dot_class = "live" if market_open else "closed"
 
-    # Build HTML string first, then pass to components.html.
-    # st.markdown with unsafe_allow_html=True escapes the block as plain text
-    # in newer Streamlit versions when SVG tags are present in the f-string.
-    # components.v1.html always renders raw HTML, bypassing the sanitizer.
-    html = (
-        '<div class="qt-header">'
-        '<div class="qt-brand">'
-        '<div class="qt-logo">Q</div>'
-        '<div class="qt-brand-text">'
-        '<div class="qt-title">Quant Terminal</div>'
-        '<div class="qt-subtitle">Institutional Research Platform</div>'
-        '</div>'
-        '</div>'
-        '<div class="qt-header-right">'
-        f'<div class="qt-chip"><span class="qt-dot {dot_class}"></span>NSE · {market_status}</div>'
-        f'<div class="qt-chip">{icon_clock}{ist_now.strftime("%H:%M:%S")} IST</div>'
-        f'<div class="qt-icon-btn">{icon_bell}</div>'
-        f'<div class="qt-icon-btn">{icon_gear}</div>'
-        '</div>'
-        '</div>'
+    st.markdown(
+        f"""
+<div class="qt-header">
+    <div class="qt-brand">
+        <div class="qt-logo">Q</div>
+        <div>
+            <div class="qt-title">Quant Terminal</div>
+            <div class="qt-subtitle">Institutional Research Platform</div>
+        </div>
+    </div>
+    <div class="qt-header-right">
+        <div class="qt-chip"><span class="qt-dot {dot_class}"></span>NSE · {market_status}</div>
+        <div class="qt-chip">{icon_clock}&nbsp;{ist_now.strftime("%H:%M:%S")} IST</div>
+        <div class="qt-icon-btn" title="Notifications">{icon_bell}</div>
+        <div class="qt-icon-btn" title="Settings">{icon_gear}</div>
+    </div>
+</div>
+""",
+        unsafe_allow_html=True,
     )
-
-    components.html(html, height=70, scrolling=False)
