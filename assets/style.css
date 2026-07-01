@@ -578,3 +578,30 @@ html, body, .stApp {
     box-shadow:0 8px 20px rgba(0,229,180,.25);
 
 }
+/* ── SIDEBAR COLLAPSE / EXPAND CONTROL ── */
+[data-testid="collapsedControl"] {
+    background: linear-gradient(135deg, #00E5B4 0%, #00A884 100%) !important;
+    border-radius: 9px !important;
+    box-shadow: 0 4px 14px rgba(0,229,180,.25), inset 0 0 0 1px rgba(255,255,255,.15) !important;
+    top: .85rem !important;
+    left: .85rem !important;
+    width: 34px !important;
+    height: 34px !important;
+    transition: all .15s ease !important;
+}
+[data-testid="collapsedControl"]:hover {
+    box-shadow: 0 6px 18px rgba(0,229,180,.4), inset 0 0 0 1px rgba(255,255,255,.2) !important;
+    transform: translateY(-1px);
+}
+[data-testid="collapsedControl"] svg {
+    fill: #04121A !important;
+}
+
+/* Sidebar's own collapse arrow (when expanded) — match theme too */
+[data-testid="stSidebarCollapseButton"] button {
+    color: var(--text-tertiary) !important;
+    transition: color .15s !important;
+}
+[data-testid="stSidebarCollapseButton"] button:hover {
+    color: var(--accent) !important;
+}
