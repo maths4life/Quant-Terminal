@@ -54,14 +54,46 @@ header[data-testid="stHeader"] {
     box-shadow: var(--shadow-sm) !important;
     top: 0.6rem !important;
 }
-[data-testid="collapsedControl"] svg { color: var(--accent) !important; }
+/* Streamlit puts inline color/fill on the inner icon nodes, which beats
+   any color set on the ancestor button — force it on every descendant,
+   and on svg fill/stroke specifically since `color` alone doesn't reach
+   them unless the path already uses currentColor. */
+[data-testid="collapsedControl"],
+[data-testid="collapsedControl"] * {
+    color: var(--accent) !important;
+    -webkit-text-fill-color: var(--accent) !important;
+    opacity: 1 !important;
+}
+[data-testid="collapsedControl"] svg,
+[data-testid="collapsedControl"] svg * {
+    fill: var(--accent) !important;
+    stroke: var(--accent) !important;
+}
 
 [data-testid="stSidebarCollapseButton"] button,
-[data-testid="baseButton-headerNoPadding"] {
+[data-testid="stSidebarCollapseButton"] button *,
+[data-testid="baseButton-headerNoPadding"],
+[data-testid="baseButton-headerNoPadding"] * {
     color: var(--text-secondary) !important;
+    -webkit-text-fill-color: var(--text-secondary) !important;
+    opacity: 1 !important;
 }
-[data-testid="stSidebarCollapseButton"] button:hover {
+[data-testid="stSidebarCollapseButton"] button svg,
+[data-testid="stSidebarCollapseButton"] button svg *,
+[data-testid="baseButton-headerNoPadding"] svg,
+[data-testid="baseButton-headerNoPadding"] svg * {
+    fill: var(--text-secondary) !important;
+    stroke: var(--text-secondary) !important;
+}
+[data-testid="stSidebarCollapseButton"] button:hover,
+[data-testid="stSidebarCollapseButton"] button:hover * {
     color: var(--accent) !important;
+    -webkit-text-fill-color: var(--accent) !important;
+}
+[data-testid="stSidebarCollapseButton"] button:hover svg,
+[data-testid="stSidebarCollapseButton"] button:hover svg * {
+    fill: var(--accent) !important;
+    stroke: var(--accent) !important;
 }
 
 /* ── SCROLLBAR ── */
@@ -387,6 +419,20 @@ header[data-testid="stHeader"] {
     font-size: .8rem !important;
     color: var(--text-secondary) !important;
 }
+/* Same inline-color-on-descendant issue as the radio/checkbox labels and
+   the sidebar collapse button: force it on every nested node (covers
+   st.info / st.warning / st.success / st.error, which all share these
+   testids) and on the leading icon's fill/stroke. */
+[data-testid="stInfo"] *, [data-testid="stAlert"] * {
+    color: var(--text-secondary) !important;
+    -webkit-text-fill-color: var(--text-secondary) !important;
+    opacity: 1 !important;
+}
+[data-testid="stInfo"] svg, [data-testid="stInfo"] svg *,
+[data-testid="stAlert"] svg, [data-testid="stAlert"] svg * {
+    fill: var(--text-secondary) !important;
+    stroke: var(--text-secondary) !important;
+}
 [data-testid="stHorizontalBlock"] { gap: .65rem !important; }
 
 .qt-section-title {
@@ -498,7 +544,7 @@ header[data-testid="stHeader"] {
    SIDEBAR REDESIGN — Premium institutional terminal look
    (additive rules only; nothing above this block is modified)
    ══════════════════════════════════════════════════════════════════ */
- 
+
 /* Section cards: 8px-grid spacing + soft hover elevation */
 [data-testid="stSidebar"] .qt-side-section {
     padding: .9rem 1rem;
@@ -509,7 +555,7 @@ header[data-testid="stHeader"] {
     box-shadow: var(--shadow-sm);
     border-color: var(--border-strong);
 }
- 
+
 /* Sub-label above each control row inside a section */
 .qt-side-sublabel {
     font-family: 'Inter', sans-serif;
@@ -517,14 +563,14 @@ header[data-testid="stHeader"] {
     text-transform: uppercase; color: var(--text-tertiary);
     margin: .1rem 0 .4rem 0;
 }
- 
+
 /* Fading divider instead of a hard line */
 [data-testid="stSidebar"] hr {
     height: 1px !important; border: none !important;
     background: linear-gradient(90deg, transparent, var(--border) 15%, var(--border) 85%, transparent) !important;
     margin: .35rem 0 .85rem 0 !important;
 }
- 
+
 /* ---- Segmented time-frame controls (2 rows of chips) ---- */
 .st-key-qt_period_wrap [data-testid="stRadio"] > div {
     grid-template-columns: repeat(4, 1fr) !important;
@@ -535,7 +581,23 @@ header[data-testid="stHeader"] {
 [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label {
     transition: border-color .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
 }
- 
+
+/* Streamlit/BaseWeb renders the option text in a nested node that
+   carries its OWN inline color (often a stale dark-theme value), so
+   setting color on the <label> alone doesn't reach it. Force it on
+   every descendant, unchecked and checked, so text is never invisible. */
+[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label,
+[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label * {
+    color: var(--text-secondary) !important;
+    -webkit-text-fill-color: var(--text-secondary) !important;
+    opacity: 1 !important;
+}
+[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label:has(input:checked),
+[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label:has(input:checked) * {
+    color: var(--accent) !important;
+    -webkit-text-fill-color: var(--accent) !important;
+}
+
 /* ---- Indicator / sub-panel toggle cards ---- */
 [data-testid="stSidebar"] .stCheckbox {
     border-radius: 10px;
@@ -550,14 +612,22 @@ header[data-testid="stHeader"] {
     border-color: var(--accent) !important;
     box-shadow: 0 0 0 1px var(--accent) inset;
 }
-[data-testid="stSidebar"] .stCheckbox:has(input:checked) label {
+[data-testid="stSidebar"] .stCheckbox label,
+[data-testid="stSidebar"] .stCheckbox label * {
+    color: var(--text-primary) !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+    opacity: 1 !important;
+}
+[data-testid="stSidebar"] .stCheckbox:has(input:checked) label,
+[data-testid="stSidebar"] .stCheckbox:has(input:checked) label * {
     color: var(--accent-strong) !important;
+    -webkit-text-fill-color: var(--accent-strong) !important;
     font-weight: 600 !important;
 }
 [data-testid="stSidebar"] .stCheckbox [data-baseweb="checkbox"] span:first-child {
     transition: background .15s ease, border-color .15s ease;
 }
- 
+
 /* ---- Refresh action button ---- */
 [data-testid="stSidebar"] .stButton button {
     transition: background .15s ease, transform .08s ease, box-shadow .15s ease;
@@ -567,7 +637,7 @@ header[data-testid="stHeader"] {
 [data-testid="stSidebar"] .stButton button:disabled {
     opacity: .65 !important; cursor: progress !important;
 }
- 
+
 /* ---- Footer status card ---- */
 .qt-side-status {
     margin-top: .85rem;
@@ -580,4 +650,3 @@ header[data-testid="stHeader"] {
     text-transform: uppercase; color: var(--text-tertiary);
     opacity: .8;
 }
- 
