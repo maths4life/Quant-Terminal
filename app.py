@@ -31,17 +31,8 @@ st.set_page_config(
 load_css()
 
 # ── SESSION STATE ──────────────────────────────────────────────────
-if "recent" not in st.session_state:
-    st.session_state.recent = []
-
 if "ticker" not in st.session_state:
     st.session_state.ticker = "RELIANCE.NS"
-
-
-def add_recent(ticker):
-    if ticker not in st.session_state.recent:
-        st.session_state.recent.insert(0, ticker)
-        st.session_state.recent = st.session_state.recent[:5]
 
 
 # ── TOP NAVBAR ─────────────────────────────────────────────────────
@@ -58,7 +49,7 @@ render_navbar(
 
 # render_search commits directly to st.session_state.ticker and reruns on
 # selection, so by the time we reach here it's already current.
-render_search(current_ticker=st.session_state.ticker, recent=st.session_state.recent)
+render_search(current_ticker=st.session_state.ticker)
 ticker = st.session_state.ticker
 
 # ── SIDEBAR ────────────────────────────────────────────────────────
@@ -93,8 +84,6 @@ df, stats = result
 
 if len(df) < 55:
     st.warning("Limited history — MA50 / RSI readings may be inaccurate. Try a longer period.")
-
-add_recent(ticker)
 
 # Same NaN-trailing-row issue as utils.data.fetch_data — guard here too
 # since this reads from the raw df, not from stats.

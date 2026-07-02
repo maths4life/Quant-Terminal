@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+  :root {
+    --accent: #2563EB;
+    --accent-dim: rgba(37,99,235,0.08);
+    --accent-strong: #1D4ED8;
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --text-tertiary: #94A3B8;
+    --border: #E2E8F0;
+    --bg-elev: #F8FAFC;
+    --shadow-sm: 0 1px 2px rgba(15,23,42,0.04);
+    --shadow-md: 0 10px 28px rgba(15,23,42,0.12);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: transparent;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow: visible;
+  }
+  #qs-root { position: relative; width: 100%; }
+
+  .qs-input-wrap {
+    position: relative;
+    display: flex; align-items: center;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow-sm);
+    transition: border-color .15s ease, box-shadow .15s ease;
+    padding: 0 14px;
+    height: 52px;
+  }
+  .qs-input-wrap.focused {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-dim);
+  }
+  .qs-icon { flex-shrink: 0; width: 18px; height: 18px; color: var(--text-tertiary); margin-right: 10px; transition: color .15s ease; }
+  .qs-icon svg { width: 100%; height: 100%; display: block; }
+  .qs-input-wrap.focused .qs-icon { color: var(--accent); }
+
+  #qs-input {
+    flex: 1; min-width: 0; border: none; outline: none; background: transparent;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px; font-weight: 600; color: var(--text-primary);
+    height: 100%;
+  }
+  #qs-input::placeholder { color: var(--text-tertiary); font-weight: 500; }
+
+  .qs-clear {
+    flex-shrink: 0; width: 26px; height: 26px; border-radius: 7px; margin-left: 4px;
+    display: none; align-items: center; justify-content: center;
+    color: var(--text-tertiary); cursor: pointer; border: none; background: var(--bg-elev);
+    font-size: 13px; line-height: 1; padding: 0;
+  }
+  .qs-clear.show { display: flex; }
+  .qs-clear:hover { color: var(--text-primary); background: var(--border); }
+
+  .qs-enter-hint {
+    flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    font-weight: 600; color: var(--text-tertiary);
+    border: 1px solid var(--border); border-radius: 6px; padding: 3px 7px;
+    margin-left: 8px; white-space: nowrap;
+  }
+
+  .qs-dropdown {
+    position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+    background: #fff; border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: var(--shadow-md);
+    padding: 6px; display: none; max-height: 360px; overflow-y: auto;
+  }
+  .qs-dropdown.open { display: block; }
+
+  .qs-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--text-tertiary); padding: 8px 10px 6px 10px;
+  }
+
+  .qs-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 9px 10px; border-radius: 9px; cursor: pointer;
+    transition: background .1s ease;
+  }
+  .qs-item:hover, .qs-item.active { background: var(--accent-dim); }
+  .qs-item-left { display: flex; align-items: baseline; gap: 9px; min-width: 0; }
+  .qs-item-symbol {
+    font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13.5px;
+    color: var(--text-primary); white-space: nowrap;
+  }
+  .qs-item-name {
+    font-size: 12.5px; color: var(--text-secondary);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .qs-item.active .qs-item-symbol, .qs-item.active .qs-item-name { color: var(--accent-strong); }
+  .qs-item mark { background: transparent; color: var(--accent-strong); font-weight: 700; padding: 0; }
+  .qs-item-tag {
+    flex-shrink: 0; font-size: 10px; font-weight: 700; letter-spacing: .05em;
+    color: var(--text-tertiary); background: var(--bg-elev);
+    border: 1px solid var(--border); border-radius: 5px; padding: 2px 6px;
+    text-transform: uppercase;
+  }
+  .qs-empty { padding: 14px 10px; text-align: center; color: var(--text-tertiary); font-size: 12.5px; }
+</style>
+</head>
+<body>
+<div id="qs-root">
+  <div class="qs-input-wrap" id="qs-input-wrap">
+    <span class="qs-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    </span>
+    <input id="qs-input" type="text" autocomplete="off" spellcheck="false" placeholder="Search symbol… e.g. RELIANCE.NS, TCS.NS, ^NSEI" />
+    <button class="qs-clear" id="qs-clear" title="Clear" type="button">&#10005;</button>
+    <span class="qs-enter-hint">Enter &#8629;</span>
+  </div>
+  <div class="qs-dropdown" id="qs-dropdown"></div>
+</div>
+
+<script>
+(function () {
+  var POPULAR = [];
+  var activeIndex = -1;
+  var visibleItems = [];
+  var isOpen = false;
+
+  var root = document.getElementById("qs-root");
+  var inputWrap = document.getElementById("qs-input-wrap");
+  var input = document.getElementById("qs-input");
+  var clearBtn = document.getElementById("qs-clear");
+  var dropdown = document.getElementById("qs-dropdown");
+
+  // ── Streamlit component protocol (raw postMessage — no external JS lib needed) ──
+  function sendMessage(type, data) {
+    var payload = Object.assign({ isStreamlitMessage: true, type: type }, data);
+    window.parent.postMessage(payload, "*");
+  }
+  function componentReady() { sendMessage("streamlit:componentReady", { apiVersion: 1 }); }
+  function setValue(value) { sendMessage("streamlit:setComponentValue", { value: value, dataType: "json" }); }
+  function setFrameHeight() {
+    var h = isOpen
+      ? inputWrap.getBoundingClientRect().height + dropdown.scrollHeight + 16
+      : 60;
+    sendMessage("streamlit:setFrameHeight", { height: Math.ceil(h) });
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function highlight(text, query) {
+    if (!query) return escapeHtml(text);
+    var idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return escapeHtml(text);
+    return (
+      escapeHtml(text.slice(0, idx)) +
+      "<mark>" + escapeHtml(text.slice(idx, idx + query.length)) + "</mark>" +
+      escapeHtml(text.slice(idx + query.length))
+    );
+  }
+
+  function matchScore(item, q) {
+    var sym = item.symbol.toLowerCase();
+    var name = (item.name || "").toLowerCase();
+    if (sym.indexOf(q) === 0) return 0;
+    if (sym.indexOf(q) !== -1) return 1;
+    if (name.indexOf(q) === 0) return 2;
+    if (name.indexOf(q) !== -1) return 3;
+    return -1;
+  }
+
+  function getFiltered(q) {
+    if (!q) return POPULAR.slice();
+    var query = q.toLowerCase();
+    return POPULAR
+      .map(function (item) { return { item: item, score: matchScore(item, query) }; })
+      .filter(function (r) { return r.score !== -1; })
+      .sort(function (a, b) { return a.score - b.score; })
+      .map(function (r) { return r.item; });
+  }
+
+  function render() {
+    var q = input.value.trim();
+    clearBtn.classList.toggle("show", q.length > 0);
+
+    var filtered = getFiltered(q);
+    visibleItems = [];
+    var html = "";
+
+    var exactMatch = filtered.some(function (f) { return f.symbol.toLowerCase() === q.toLowerCase(); });
+    if (q && !exactMatch) {
+      visibleItems.push({ symbol: q.toUpperCase(), name: "", isCustom: true });
+      html += '<div class="qs-item" data-idx="0">' +
+        '<div class="qs-item-left"><span class="qs-item-symbol">' + escapeHtml(q.toUpperCase()) + '</span>' +
+        '<span class="qs-item-name">Search this symbol</span></div>' +
+        '<span class="qs-item-tag">Analyze</span></div>';
+    }
+
+    if (filtered.length) {
+      html += '<div class="qs-section-label">' + (q ? "Matches" : "Popular") + '</div>';
+      filtered.forEach(function (item) {
+        var idx = visibleItems.length;
+        visibleItems.push(item);
+        html += '<div class="qs-item" data-idx="' + idx + '">' +
+          '<div class="qs-item-left">' +
+          '<span class="qs-item-symbol">' + highlight(item.symbol, q) + '</span>' +
+          '<span class="qs-item-name">' + highlight(item.name || "", q) + '</span>' +
+          '</div><span class="qs-item-tag">' + escapeHtml(item.tag || "") + '</span></div>';
+      });
+    } else if (!visibleItems.length) {
+      html = '<div class="qs-empty">Type a symbol and press Enter</div>';
+    }
+
+    dropdown.innerHTML = html;
+    activeIndex = -1;
+    attachItemHandlers();
+    setFrameHeight();
+  }
+
+  function attachItemHandlers() {
+    var els = dropdown.querySelectorAll(".qs-item");
+    els.forEach(function (el) {
+      el.addEventListener("mousedown", function (e) {
+        e.preventDefault();
+        select(parseInt(el.getAttribute("data-idx"), 10));
+      });
+      el.addEventListener("mouseenter", function () {
+        activeIndex = parseInt(el.getAttribute("data-idx"), 10);
+        updateActive();
+      });
+    });
+  }
+
+  function updateActive() {
+    var els = dropdown.querySelectorAll(".qs-item");
+    els.forEach(function (el, i) { el.classList.toggle("active", i === activeIndex); });
+    if (els[activeIndex]) els[activeIndex].scrollIntoView({ block: "nearest" });
+  }
+
+  function open() {
+    if (isOpen) return;
+    isOpen = true;
+    dropdown.classList.add("open");
+    render();
+  }
+
+  function close() {
+    if (!isOpen) return;
+    isOpen = false;
+    dropdown.classList.remove("open");
+    activeIndex = -1;
+    setFrameHeight();
+  }
+
+  function select(idx) {
+    var item = visibleItems[idx];
+    if (!item) return;
+    input.value = item.symbol;
+    close();
+    setValue(item.symbol);
+  }
+
+  function submitRaw() {
+    var q = input.value.trim();
+    if (!q) return;
+    close();
+    setValue(q.toUpperCase());
+  }
+
+  input.addEventListener("focus", function () { inputWrap.classList.add("focused"); open(); });
+  input.addEventListener("blur", function () { inputWrap.classList.remove("focused"); });
+  input.addEventListener("input", function () { open(); render(); });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (!isOpen) { open(); return; }
+      activeIndex = Math.min(activeIndex + 1, visibleItems.length - 1);
+      updateActive();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      activeIndex = Math.max(activeIndex - 1, 0);
+      updateActive();
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (isOpen && activeIndex >= 0 && visibleItems[activeIndex]) {
+        select(activeIndex);
+      } else {
+        submitRaw();
+      }
+    } else if (e.key === "Escape") {
+      close();
+      input.blur();
+    }
+  });
+
+  clearBtn.addEventListener("click", function () {
+    input.value = "";
+    input.focus();
+    render();
+  });
+
+  document.addEventListener("mousedown", function (e) {
+    if (!root.contains(e.target)) close();
+  });
+
+  window.addEventListener("message", function (event) {
+    var data = event.data;
+    if (!data || data.type !== "streamlit:render") return;
+    var args = data.args || {};
+    POPULAR = (args.popular || []).map(function (p) {
+      return { symbol: p.symbol, name: p.name, tag: p.tag || "" };
+    });
+    // Never clobber what the user is actively typing.
+    if (document.activeElement !== input) {
+      input.value = args.current_ticker || "";
+    }
+    setFrameHeight();
+  });
+
+  window.addEventListener("load", function () {
+    componentReady();
+    setFrameHeight();
+  });
+})();
+</script>
+</body>
+</html>

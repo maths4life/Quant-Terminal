@@ -1,67 +1,41 @@
 import streamlit as st
 
+from components.quant_search import quant_search
+
+# Shown in the dropdown when the box is empty/focused, and matched against
+# (symbol + name) as the user types. Add more here any time — no other code
+# needs to change.
 POPULAR = [
-    "RELIANCE.NS",
-    "TCS.NS",
-    "INFY.NS",
-    "HDFCBANK.NS",
-    "SBIN.NS",
-    "ICICIBANK.NS",
-    "^NSEI",
-    "^NSEBANK",
+    {"symbol": "RELIANCE.NS", "name": "Reliance Industries", "tag": "NSE"},
+    {"symbol": "TCS.NS", "name": "Tata Consultancy Services", "tag": "NSE"},
+    {"symbol": "INFY.NS", "name": "Infosys", "tag": "NSE"},
+    {"symbol": "HDFCBANK.NS", "name": "HDFC Bank", "tag": "NSE"},
+    {"symbol": "SBIN.NS", "name": "State Bank of India", "tag": "NSE"},
+    {"symbol": "ICICIBANK.NS", "name": "ICICI Bank", "tag": "NSE"},
+    {"symbol": "^NSEI", "name": "Nifty 50 Index", "tag": "INDEX"},
+    {"symbol": "^NSEBANK", "name": "Nifty Bank Index", "tag": "INDEX"},
 ]
 
 
-def _select_ticker(symbol: str):
-    st.session_state.ticker = symbol.upper().strip()
-    st.rerun()
+def render_search(current_ticker):
+    """Renders the primary search bar. Selecting a symbol — by click or by
+    Enter, whether from the Popular list, a filtered match, or free-text —
+    commits straight to st.session_state.ticker and reruns, so the caller
+    can simply read st.session_state.ticker afterwards, exactly as before.
+    """
 
-
-def render_search(current_ticker, recent):
-    """Renders the search card. Ticker selection is committed straight to
-    st.session_state.ticker and triggers a rerun, so the caller can simply
-    read st.session_state.ticker afterwards — no return-value plumbing."""
-
-    st.markdown(
-        """
-<div class="qt-search-card">
-<div class="qt-search-title">🔍 Search &amp; Analyze</div>
-<div class="qt-search-subtitle">Search any NSE/BSE stock or market index</div>
-</div>
-""",
-        unsafe_allow_html=True,
+    st.markdown('<div class="qt-search-mount">', unsafe_allow_html=True)
+    result = quant_search(
+        current_ticker=current_ticker,
+        popular=POPULAR,
+        key="qt_search",
     )
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    col1, col2 = st.columns([6, 1])
-    with col1:
-        typed = st.text_input(
-            "Ticker",
-            value=current_ticker,
-            placeholder="Example: RELIANCE.NS, TCS.NS, ^NSEI",
-            label_visibility="collapsed",
-            key="search_box",
-        )
-    with col2:
-        if st.button("Analyze", key="search_analyze_btn", use_container_width=True):
-            if typed.strip():
-                _select_ticker(typed)
-
-    st.markdown('<div class="qt-search-small-title">Popular</div>', unsafe_allow_html=True)
-    cols = st.columns(4)
-    for i, sym in enumerate(POPULAR):
-        label = sym.replace(".NS", "").replace("^NSEI", "NIFTY50").replace("^NSEBANK", "BANKNIFTY")
-        with cols[i % 4]:
-            st.markdown('<div class="qt-secondary-btn">', unsafe_allow_html=True)
-            if st.button(label, key=f"popular_{sym}", use_container_width=True):
-                _select_ticker(sym)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-    if recent:
-        st.markdown('<div class="qt-search-small-title">Recent Searches</div>', unsafe_allow_html=True)
-        cols = st.columns(min(4, len(recent)))
-        for i, sym in enumerate(recent):
-            with cols[i % len(cols)]:
-                st.markdown('<div class="qt-secondary-btn">', unsafe_allow_html=True)
-                if st.button(sym.replace(".NS", ""), key=f"recent_{sym}", use_container_width=True):
-                    _select_ticker(sym)
-                st.markdown("</div>", unsafe_allow_html=True)
+    # The component keeps returning the same value on every rerun until the
+    # user makes a new selection, so dedupe against the last one we acted on
+    # to avoid re-triggering st.rerun() in a loop.
+    if result and result != st.session_state.get("_qt_search_committed"):
+        st.session_state._qt_search_committed = result
+        st.session_state.ticker = result.upper().strip()
+        st.rerun()

@@ -276,20 +276,37 @@ header[data-testid="stHeader"] {
     background: var(--accent-dim) !important;
 }
 
-/* Popular/recent chips in the main search card use the same secondary style */
-.qt-secondary-btn button {
-    background: #fff !important;
-    border: 1px solid var(--border) !important;
-    color: var(--text-secondary) !important;
-    font-family: 'JetBrains Mono', monospace !important;
-    font-weight: 600 !important;
-    font-size: .75rem !important;
-    box-shadow: none !important;
+/* ── SEARCH BAR ── */
+.qt-search-mount {
+    margin: 0 0 1rem 0;
 }
-.qt-secondary-btn button:hover {
-    color: var(--accent) !important; border-color: var(--accent) !important;
-    background: var(--accent-dim) !important;
-    transform: none !important; box-shadow: none !important;
+
+.stTextInput input {
+    background:#fff !important;
+    border:1px solid var(--border) !important;
+    border-radius:10px !important;
+    color: var(--text-primary) !important;
+    font-size:15px !important;
+    font-family:"JetBrains Mono", monospace !important;
+    padding:12px 14px !important;
+}
+.stTextInput input:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px var(--accent-dim) !important;
+}
+
+.stButton button {
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    height: 46px !important;
+    background: var(--accent) !important;
+    color: #fff !important;
+    border: 1px solid var(--accent) !important;
+    transition: background .15s !important;
+}
+.stButton button:hover {
+    background: var(--accent-strong) !important;
+    border-color: var(--accent-strong) !important;
 }
 
 /* ── HERO ── */
@@ -479,56 +496,6 @@ header[data-testid="stHeader"] {
     background: #fff; border: 2px solid var(--accent);
     transform: translate(-50%, -50%);
     box-shadow: var(--shadow-md);
-}
-
-/* ── SEARCH CARD ── */
-.qt-search-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px 22px;
-    margin-bottom: 16px;
-    box-shadow: var(--shadow-sm);
-}
-.qt-search-title {
-    font-size: 14px; font-weight: 700; color: var(--text-primary);
-    margin-bottom: 3px;
-}
-.qt-search-subtitle {
-    color: var(--text-secondary); font-size: 13px; margin-bottom: 16px;
-}
-.qt-search-small-title {
-    margin-top: 16px; margin-bottom: 8px;
-    color: var(--text-tertiary); text-transform: uppercase;
-    letter-spacing: .08em; font-size: 11px; font-weight: 700;
-}
-
-.stTextInput input {
-    background:#fff !important;
-    border:1px solid var(--border) !important;
-    border-radius:10px !important;
-    color: var(--text-primary) !important;
-    font-size:15px !important;
-    font-family:"JetBrains Mono", monospace !important;
-    padding:12px 14px !important;
-}
-.stTextInput input:focus {
-    border-color: var(--accent) !important;
-    box-shadow: 0 0 0 3px var(--accent-dim) !important;
-}
-
-.stButton button {
-    border-radius: 10px !important;
-    font-weight: 600 !important;
-    height: 46px !important;
-    background: var(--accent) !important;
-    color: #fff !important;
-    border: 1px solid var(--accent) !important;
-    transition: background .15s !important;
-}
-.stButton button:hover {
-    background: var(--accent-strong) !important;
-    border-color: var(--accent-strong) !important;
 }
 
 /* Responsive */
