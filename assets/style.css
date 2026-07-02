@@ -493,3 +493,91 @@ header[data-testid="stHeader"] {
     .qt-ticker { font-size: 1.4rem; }
     .qt-header-right { width: 100%; justify-content: flex-start; }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   SIDEBAR REDESIGN — Premium institutional terminal look
+   (additive rules only; nothing above this block is modified)
+   ══════════════════════════════════════════════════════════════════ */
+ 
+/* Section cards: 8px-grid spacing + soft hover elevation */
+[data-testid="stSidebar"] .qt-side-section {
+    padding: .9rem 1rem;
+    margin-bottom: .75rem;
+    transition: box-shadow .15s ease, border-color .15s ease;
+}
+[data-testid="stSidebar"] .qt-side-section:hover {
+    box-shadow: var(--shadow-sm);
+    border-color: var(--border-strong);
+}
+ 
+/* Sub-label above each control row inside a section */
+.qt-side-sublabel {
+    font-family: 'Inter', sans-serif;
+    font-size: .64rem; font-weight: 700; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--text-tertiary);
+    margin: .1rem 0 .4rem 0;
+}
+ 
+/* Fading divider instead of a hard line */
+[data-testid="stSidebar"] hr {
+    height: 1px !important; border: none !important;
+    background: linear-gradient(90deg, transparent, var(--border) 15%, var(--border) 85%, transparent) !important;
+    margin: .35rem 0 .85rem 0 !important;
+}
+ 
+/* ---- Segmented time-frame controls (2 rows of chips) ---- */
+.st-key-qt_period_wrap [data-testid="stRadio"] > div {
+    grid-template-columns: repeat(4, 1fr) !important;
+}
+.st-key-qt_interval_wrap [data-testid="stRadio"] > div {
+    grid-template-columns: repeat(3, 1fr) !important;
+}
+[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label {
+    transition: border-color .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+ 
+/* ---- Indicator / sub-panel toggle cards ---- */
+[data-testid="stSidebar"] .stCheckbox {
+    border-radius: 10px;
+    transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+}
+[data-testid="stSidebar"] .stCheckbox:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-sm);
+}
+[data-testid="stSidebar"] .stCheckbox:has(input:checked) {
+    background: var(--accent-dim) !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 1px var(--accent) inset;
+}
+[data-testid="stSidebar"] .stCheckbox:has(input:checked) label {
+    color: var(--accent-strong) !important;
+    font-weight: 600 !important;
+}
+[data-testid="stSidebar"] .stCheckbox [data-baseweb="checkbox"] span:first-child {
+    transition: background .15s ease, border-color .15s ease;
+}
+ 
+/* ---- Refresh action button ---- */
+[data-testid="stSidebar"] .stButton button {
+    transition: background .15s ease, transform .08s ease, box-shadow .15s ease;
+    box-shadow: var(--shadow-sm) !important;
+}
+[data-testid="stSidebar"] .stButton button:active { transform: scale(.98); }
+[data-testid="stSidebar"] .stButton button:disabled {
+    opacity: .65 !important; cursor: progress !important;
+}
+ 
+/* ---- Footer status card ---- */
+.qt-side-status {
+    margin-top: .85rem;
+    display: flex; flex-direction: column; align-items: center; gap: .4rem;
+}
+.qt-side-status .qt-chip { font-size: .7rem; }
+.qt-version-tag {
+    font-family: 'Inter', sans-serif;
+    font-size: .6rem; font-weight: 600; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--text-tertiary);
+    opacity: .8;
+}
+ 
