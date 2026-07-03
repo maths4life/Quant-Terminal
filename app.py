@@ -10,6 +10,7 @@ from components.metrics import render_metrics
 from components.footer import render_footer
 from components.search import render_search
 from components.profile import render_profile_strip, render_key_stats
+from components.insights import render_insights_page
 
 from utils.data import fetch_data, fetch_company_info
 from utils.market import is_nse_open
@@ -34,6 +35,12 @@ load_css()
 if "ticker" not in st.session_state:
     st.session_state.ticker = "RELIANCE.NS"
 
+# ── PAGE ROUTING ───────────────────────────────────────────────────
+# Single-script routing via st.query_params, driven by the plain <a>
+# links in the navbar (real Streamlit widgets can't live inside the
+# navbar's raw HTML block, so a query-param link + rerun stands in for
+# a proper multipage nav here).
+page = st.query_params.get("page", "home")
 
 # ── TOP NAVBAR ─────────────────────────────────────────────────────
 market_open, market_status = is_nse_open()
@@ -45,7 +52,13 @@ render_navbar(
     icon_clock=ICON_CLOCK,
     icon_bell=ICON_BELL,
     icon_gear=ICON_GEAR,
+    active_page=page,
 )
+
+if page == "insights":
+    render_insights_page(ticker=st.session_state.ticker)
+    render_footer()
+    st.stop()
 
 # render_search commits directly to st.session_state.ticker and reruns on
 # selection, so by the time we reach here it's already current.

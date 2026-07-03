@@ -156,6 +156,26 @@ header[data-testid="stHeader"] {
 }
 .qt-icon-btn svg { width: 16px; height: 16px; }
 
+/* AI Insights nav entry — lives next to the logo/title inside .qt-brand */
+.qt-nav-btn {
+    display:inline-flex; align-items:center; gap:.4rem;
+    margin-left: .9rem; padding: .45rem .85rem;
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: 999px;
+    font-family: 'Inter', sans-serif; font-size: .78rem; font-weight: 600;
+    color: var(--text-secondary);
+    text-decoration: none !important;
+    transition: border-color .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.qt-nav-btn:hover {
+    border-color: var(--accent); color: var(--accent);
+    box-shadow: var(--shadow-sm);
+}
+.qt-nav-btn.active {
+    background: var(--accent); border-color: var(--accent);
+    color: #fff; box-shadow: var(--shadow-sm);
+}
+
 /* ── SIDEBAR ── */
 [data-testid="stSidebar"] {
     background: var(--bg-secondary) !important;
