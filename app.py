@@ -178,7 +178,7 @@ render_key_stats(
     fmt_ratio=fmt_ratio,
     fmt_pct_val=fmt_pct_val,
 )
-
+ 
 # ── CHART ──────────────────────────────────────────────────────────
 render_chart(
     df=df,
