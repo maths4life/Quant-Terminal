@@ -6,28 +6,26 @@ IST = pytz.timezone("Asia/Kolkata")
 
 
 def render_footer():
-    """Institutional terminal footer.
-    Adheres strictly to landing-page-design B10 (ship requirements:
-    privacy policy and terms links, semantic info, live status).
+    """Hallmark v2.0.0 quiet footer.
+    No middle-dot joined meta strings, no tracked uppercase, quiet muted text.
     """
     ist_now = datetime.now(IST)
 
     render_html(
         f"""
-<div class="qt-footer">
-    <div style="display:flex; align-items:center; gap:8px;">
-        <span class="qt-dot live"></span>
-        <span>QUANT TERMINAL // v2.0 · INSTITUTIONAL BUILD</span>
+<footer class="hm-footer">
+    <div class="hm-footer-info">
+        <span>Quant Terminal</span>
+        <span class="hm-footer-sub">Systematic equity telemetry</span>
     </div>
-    <div class="qt-footer-links">
-        <a href="#terms" onclick="return false;">Terms of Service</a>
-        <a href="#privacy" onclick="return false;">Privacy Policy</a>
-        <a href="#disclaimer" onclick="return false;">Risk Disclosure</a>
-        <a href="https://github.com" target="_blank">Documentation</a>
+    <div class="hm-footer-links">
+        <a href="#terms" onclick="return false;">Terms</a>
+        <a href="#privacy" onclick="return false;">Privacy</a>
+        <a href="#disclaimer" onclick="return false;">Risk disclosure</a>
     </div>
-    <div>
-        Telemetry: Yahoo Finance Live Feed · {ist_now.strftime('%d %b %Y · %H:%M:%S')} IST
+    <div class="hm-footer-stamp">
+        Market data via Yahoo Finance · Refreshed {ist_now.strftime('%d %b %Y, %H:%M:%S')} IST
     </div>
-</div>
+</footer>
 """
     )

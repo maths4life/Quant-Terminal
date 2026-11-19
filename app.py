@@ -11,7 +11,6 @@ from components.footer import render_footer
 from components.search import render_search
 from components.profile import render_profile_strip, render_key_stats
 from components.insights import render_insights_page
-from components.landing import render_landing_page
 
 from utils.data import fetch_data, fetch_company_info
 from utils.market import is_nse_open
@@ -41,7 +40,7 @@ if "ticker" not in st.session_state:
 # links in the navbar (real Streamlit widgets can't live inside the
 # navbar's raw HTML block, so a query-param link + rerun stands in for
 # a proper multipage nav here).
-page = st.query_params.get("page", "landing")
+page = st.query_params.get("page", "terminal")
 
 # ── TOP NAVBAR ─────────────────────────────────────────────────────
 market_open, market_status = is_nse_open()
@@ -55,11 +54,6 @@ render_navbar(
     icon_gear=ICON_GEAR,
     active_page=page,
 )
-
-if page in ("landing", "overview"):
-    render_landing_page()
-    render_footer()
-    st.stop()
 
 if page == "insights":
     render_insights_page(ticker=st.session_state.ticker)

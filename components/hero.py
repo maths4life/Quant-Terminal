@@ -17,43 +17,44 @@ def render_hero(
     company_name="",
     profile_html="",
 ):
-    """Institutional terminal hero section.
-    Adheres to Part B5:
-    - Left-to-right gradient on heading text (#FFFFFF -> #9B9B9B in dark theme)
-    - Max width 680px for heading group
-    - Nested radius formula: 16px outer - 8px gap = 8px inner tag radius
-    - Real numeric precision with Geist Mono typography
+    """Hallmark v2.0.0 instrument telemetry banner.
+    Solid high-contrast typography (no gradient text), no middle-dot meta strings,
+    no decorative status dots, and quiet hairline frame.
     """
-    change_class = "up" if change >= 0 else "down"
-    arrow = "▲" if change >= 0 else "▼"
+    change_tone = "delta-positive" if change >= 0 else "delta-negative"
+    sign_str = "+" if change >= 0 else ""
     ist_now = datetime.now(IST)
 
     render_html(
         f"""
-<div class="qt-hero">
-<div class="qt-hero-grid">
-    <div class="qt-hero-left">
-        <div class="qt-hero-tags">
-            <span class="qt-tag">{interval_label} · {period}</span>
-            <span class="qt-tag">RSI {rsi_txt}</span>
-            <span class="qt-tag">Updated {date_str}</span>
+<section class="hm-hero-card">
+    <div class="hm-hero-grid">
+        <div class="hm-hero-primary">
+            <div class="hm-tag-row">
+                <span class="hm-tag">{interval_label}</span>
+                <span class="hm-tag">{period} window</span>
+                <span class="hm-tag">RSI {rsi_txt}</span>
+                <span class="hm-tag">Updated {date_str}</span>
+            </div>
+
+            <div class="hm-ticker-title">
+                <h1 class="hm-symbol">{ticker}</h1>
+                <span class="hm-asset-class">equity</span>
+            </div>
+
+            {f'<div class="hm-company-name">{company_name}</div>' if company_name else ''}
+            {profile_html}
         </div>
-        <div class="qt-ticker">
-            <span class="qt-hero-headline">{ticker}</span>
-            <span class="sep">/</span>
-            <span style="color:var(--text-secondary);font-size:16px;font-weight:500;">EQUITY</span>
+
+        <div class="hm-hero-secondary">
+            <div class="hm-price-display">₹{close:,.2f}</div>
+            <div class="hm-delta-badge {change_tone}">
+                <span>{sign_str}{change:.2f}%</span>
+                <span class="hm-delta-abs">{sign_str}{change_abs:,.2f}</span>
+            </div>
+            <div class="hm-time-label">{ist_now.strftime('%H:%M')} IST timestamp</div>
         </div>
-        {f'<div class="qt-company-name">{company_name}</div>' if company_name else ''}
-        {profile_html}
-        <div class="qt-meta">Institutional telemetry · Feed latency &lt; 250ms · IST {ist_now.strftime('%H:%M')}</div>
     </div>
-    <div class="qt-hero-right">
-        <div class="qt-price">₹{close:,.2f}</div>
-        <div class="qt-change {change_class}">
-            {arrow} {abs(change):.2f}% &nbsp;·&nbsp; {'+' if change_abs >= 0 else ''}{change_abs:,.2f}
-        </div>
-    </div>
-</div>
-</div>
+</section>
 """
     )
