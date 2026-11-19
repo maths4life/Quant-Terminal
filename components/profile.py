@@ -1,4 +1,5 @@
 import streamlit as st
+from utils.helpers import render_html
 
 
 def render_profile_strip(info):
@@ -27,10 +28,7 @@ def render_key_stats(info, close, w52_h, w52_l, fmt_mcap, fmt_ratio, fmt_pct_val
     )
 
     if has_fundamentals:
-        st.markdown(
-            '<div class="qt-section-title">Key Statistics</div>',
-            unsafe_allow_html=True,
-        )
+        render_html('<div class="qt-section-title">Key Statistics</div>')
         k1, k2, k3, k4, k5, k6 = st.columns(6)
         k1.metric("Market Cap", fmt_mcap(info.get("market_cap")))
         k2.metric("P/E (TTM)", fmt_ratio(info.get("pe")))
@@ -45,7 +43,7 @@ def render_key_stats(info, close, w52_h, w52_l, fmt_mcap, fmt_ratio, fmt_pct_val
 
     if lo is not None and hi is not None and hi > lo:
         pct = max(0.0, min(1.0, (close - lo) / (hi - lo))) * 100
-        st.markdown(
+        render_html(
             f"""
 <div class="qt-range-wrap">
     <div class="qt-range-label">
@@ -57,6 +55,5 @@ def render_key_stats(info, close, w52_h, w52_l, fmt_mcap, fmt_ratio, fmt_pct_val
         <div class="qt-range-marker" style="left:{pct:.2f}%;" title="Current price"></div>
     </div>
 </div>
-""",
-            unsafe_allow_html=True,
+"""
         )

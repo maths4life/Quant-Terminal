@@ -1,4 +1,5 @@
 import streamlit as st
+from utils.helpers import render_html
 
 PERIODS = ["1mo", "3mo", "6mo", "1y", "2y", "5y", "max"]
 
@@ -17,26 +18,25 @@ INTERVALS = {
 
 
 def _section_open(icon, label):
-    st.markdown(
+    render_html(
         f"""<div class="qt-side-section">
-        <div class="qt-side-head">{icon}<span>{label}</span></div>""",
-        unsafe_allow_html=True,
+        <div class="qt-side-head">{icon}<span>{label}</span></div>"""
     )
 
 
 def _section_close():
-    st.markdown("</div>", unsafe_allow_html=True)
+    render_html("</div>")
 
 
 def _sublabel(text):
-    st.markdown(f'<div class="qt-side-sublabel">{text}</div>', unsafe_allow_html=True)
+    render_html(f'<div class="qt-side-sublabel">{text}</div>')
 
 
 def render_sidebar(market_status, dot_class, ICON_TIME, ICON_LAYERS, ICON_CANDLE, ICON_GEAR):
     with st.sidebar:
 
         # ── HEADER ──────────────────────────────────────────────────
-        st.markdown(
+        render_html(
             """
         <div style="
             display:flex; align-items:center; gap:.75rem;
@@ -50,8 +50,7 @@ def render_sidebar(market_status, dot_class, ICON_TIME, ICON_LAYERS, ICON_CANDLE
                 <div class="qt-subtitle">Trading Workspace</div>
             </div>
         </div>
-        """,
-            unsafe_allow_html=True,
+        """
         )
 
         # ── TIME FRAME ──────────────────────────────────────────────

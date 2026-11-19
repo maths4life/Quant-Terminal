@@ -1,5 +1,17 @@
 """Pure display-formatting helpers. No data fetching, no indicator math —
 keeps this module trivially testable and reusable."""
+import re
+import streamlit as st
+
+
+def render_html(html: str):
+    """Safely render HTML in Streamlit without triggering Markdown code blocks.
+    Markdown specification interprets any line indented with 4+ spaces as a
+    preformatted code block (<pre><code>). Stripping leading indentation from
+    every line prevents this while preserving the exact DOM structure.
+    """
+    clean = re.sub(r"^[ \t]+", "", html.strip(), flags=re.MULTILINE)
+    st.markdown(clean, unsafe_allow_html=True)
 
 
 def fmt_indian(n):
@@ -32,7 +44,7 @@ def fmt_mcap(n):
     if n >= 1_00_00_000:
         return f"₹{n / 1_00_00_000:,.0f} Cr"
     if n >= 1_00_000:
-        return f"₹{n / 1_00_000:,.1f} L"
+        return f"₹{n / 1_00_000:.1f} L"
     return f"₹{n:,.0f}"
 
 

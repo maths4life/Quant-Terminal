@@ -1,30 +1,43 @@
 import streamlit as st
 from streamlit_lightweight_charts import renderLightweightCharts
+from utils.helpers import render_html
 
 
 def base_opts(show_time=True):
+    """Institutional dark mode configuration for TradingView Lightweight Charts.
+    Adheres strictly to the design system:
+    - Surface/Primary #181818 background
+    - Border/Primary #313131 scale borders
+    - Text/Secondary #A1A1AA scale typography
+    - Geist Mono typography for numeric axis labels
+    """
     return {
         "layout": {
-            "background": {"type": "solid", "color": "#FFFFFF"},
-            "textColor": "#64748B", "fontSize": 11,
-            "fontFamily": "'JetBrains Mono', monospace",
+            "background": {"type": "solid", "color": "#181818"},
+            "textColor": "#A1A1AA",
+            "fontSize": 11,
+            "fontFamily": "'Geist Mono', monospace",
         },
         "grid": {
-            "vertLines": {"color": "rgba(15,23,42,0.04)"},
-            "horzLines": {"color": "rgba(15,23,42,0.04)"},
+            "vertLines": {"color": "rgba(255, 255, 255, 0.04)"},
+            "horzLines": {"color": "rgba(255, 255, 255, 0.04)"},
         },
         "crosshair": {
             "mode": 1,
-            "vertLine": {"color": "rgba(37,99,235,0.4)", "labelBackgroundColor": "#2563EB"},
-            "horzLine": {"color": "rgba(37,99,235,0.4)", "labelBackgroundColor": "#2563EB"},
+            "vertLine": {"color": "rgba(37, 99, 235, 0.5)", "labelBackgroundColor": "#2563EB"},
+            "horzLine": {"color": "rgba(37, 99, 235, 0.5)", "labelBackgroundColor": "#2563EB"},
         },
         "rightPriceScale": {
-            "borderColor": "rgba(15,23,42,0.08)", "textColor": "#64748B",
-            "autoScale": True, "minValue": 0,
+            "borderColor": "#313131",
+            "textColor": "#A1A1AA",
+            "autoScale": True,
+            "minValue": 0,
         },
         "timeScale": {
-            "borderColor": "rgba(15,23,42,0.08)", "timeVisible": show_time,
-            "secondsVisible": False, "visible": show_time,
+            "borderColor": "#313131",
+            "timeVisible": show_time,
+            "secondsVisible": False,
+            "visible": show_time,
         },
     }
 
@@ -48,11 +61,6 @@ def render_chart(
     ICON_REFRESH,
 ):
     # ── CANDLE DATA ──────────────────────────────────────────────────
-    # BUG FIX: rows with any missing OHLC value (common on weekly/monthly
-    # intervals or thinly-traded tickers) must be dropped before building
-    # the payload. NaN has no JSON representation — a single NaN anywhere
-    # in the series makes the whole component payload fail to parse,
-    # which is what was breaking every panel, not just the gappy row.
     candle_src = df[["time", "Open", "High", "Low", "Close"]].dropna()
     candles = (
         candle_src
@@ -68,9 +76,9 @@ def render_chart(
     price_series = [{
         "type": "Candlestick", "data": candles,
         "options": {
-            "upColor": "#16A34A", "downColor": "#DC2626",
+            "upColor": "#22C55E", "downColor": "#EF4444",
             "borderVisible": False,
-            "wickUpColor": "#16A34A", "wickDownColor": "#DC2626",
+            "wickUpColor": "#22C55E", "wickDownColor": "#EF4444",
         }
     }]
 
@@ -79,7 +87,7 @@ def render_chart(
         price_series.append({
             "type": "Line",
             "data": [{"time": r["time"], "value": float(r["MA20"])} for _, r in ma20d.iterrows()],
-            "options": {"color": "#F59E0B", "lineWidth": 1}
+            "options": {"color": "#EAB308", "lineWidth": 2}
         })
 
     if show_ma50 and last_ma50:
@@ -87,7 +95,7 @@ def render_chart(
         price_series.append({
             "type": "Line",
             "data": [{"time": r["time"], "value": float(r["MA50"])} for _, r in ma50d.iterrows()],
-            "options": {"color": "#2563EB", "lineWidth": 1}
+            "options": {"color": "#3B82F6", "lineWidth": 2}
         })
 
     if show_vwap and last_vwap:
@@ -95,21 +103,21 @@ def render_chart(
         price_series.append({
             "type": "Line",
             "data": [{"time": r["time"], "value": float(r["VWAP"])} for _, r in vwapd.iterrows()],
-            "options": {"color": "#C026D3", "lineWidth": 1, "lineStyle": 2}
+            "options": {"color": "#A855F7", "lineWidth": 2}
         })
 
-    if show_prevc and prev_close == prev_close:  # NaN-safe check (NaN != NaN)
+    if show_prevc and prev_close == prev_close:
         price_series.append({
             "type": "Line",
             "data": [{"time": r["time"], "value": prev_close} for r in candles],
-            "options": {"color": "rgba(100,116,139,0.5)", "lineWidth": 1, "lineStyle": 2}
+            "options": {"color": "rgba(161, 161, 170, 0.5)", "lineWidth": 1, "lineStyle": 2}
         })
 
     price_opts = base_opts(show_time=not (show_volume or show_rsi))
     price_opts["watermark"] = {
-        "visible": True, "fontSize": 60,
+        "visible": True, "fontSize": 64,
         "horzAlign": "center", "vertAlign": "center",
-        "color": "rgba(15,23,42,0.03)", "text": ticker,
+        "color": "rgba(255, 255, 255, 0.03)", "text": ticker,
     }
 
     charts_to_render = [{"chart": price_opts, "series": price_series}]
@@ -118,7 +126,7 @@ def render_chart(
         vol_src = df[["time", "Open", "Close", "Volume"]].dropna()
         vol_data = []
         for _, row in vol_src.iterrows():
-            c = "#16A34A" if float(row["Close"]) >= float(row["Open"]) else "#DC2626"
+            c = "#22C55E" if float(row["Close"]) >= float(row["Open"]) else "#EF4444"
             vol_data.append({"time": row["time"], "value": float(row["Volume"]), "color": c + "66"})
         vol_opts = base_opts(show_time=not show_rsi)
         vol_opts["rightPriceScale"]["minValue"] = 0
@@ -140,9 +148,9 @@ def render_chart(
         charts_to_render.append({
             "chart": rsi_opts,
             "series": [
-                {"type": "Line", "data": rsi_data, "options": {"color": "#7C3AED", "lineWidth": 1}},
-                {"type": "Line", "data": ob_line, "options": {"color": "rgba(220,38,38,0.45)", "lineWidth": 1, "lineStyle": 2}},
-                {"type": "Line", "data": os_line, "options": {"color": "rgba(22,163,74,0.45)", "lineWidth": 1, "lineStyle": 2}},
+                {"type": "Line", "data": rsi_data, "options": {"color": "#3B82F6", "lineWidth": 1.5}},
+                {"type": "Line", "data": ob_line, "options": {"color": "rgba(239, 68, 68, 0.45)", "lineWidth": 1, "lineStyle": 2}},
+                {"type": "Line", "data": os_line, "options": {"color": "rgba(34, 197, 94, 0.45)", "lineWidth": 1, "lineStyle": 2}},
             ]
         })
 
@@ -165,30 +173,30 @@ def render_chart(
         return f'<span class="{cls}">{sw}{label}</span>'
 
     pills_html = "".join([
-        pill(True, "Candles", "#16A34A"),
-        pill(show_ma20, "MA 20", "#F59E0B"),
-        pill(show_ma50, "MA 50", "#2563EB"),
-        pill(show_vwap, "VWAP", "#C026D3"),
-        pill(show_prevc, "Prev Close", "rgba(100,116,139,.6)"),
-        pill(show_volume, "Volume", "#94A3B8"),
-        pill(show_rsi, "RSI 14", "#7C3AED"),
+        pill(True, "Candles", "#22C55E"),
+        pill(show_ma20, "MA 20", "#EAB308"),
+        pill(show_ma50, "MA 50", "#3B82F6"),
+        pill(show_vwap, "VWAP", "#A855F7"),
+        pill(show_prevc, "Prev Close", "rgba(161,161,170,.6)"),
+        pill(show_volume, "Volume", "#71717A"),
+        pill(show_rsi, "RSI 14", "#3B82F6"),
     ])
 
     tools_html = "".join([
-        f'<div class="qt-tool" title="Draw (coming soon)">{ICON_TOOL}</div>',
-        f'<div class="qt-tool" title="Compare (coming soon)">{ICON_MARKET}</div>',
-        f'<div class="qt-tool" title="Indicators (coming soon)">{ICON_LAYERS}</div>',
-        f'<div class="qt-tool" title="Screenshot (coming soon)">{ICON_REFRESH}</div>',
+        f'<div class="qt-tool" title="Draw tools">{ICON_TOOL}</div>',
+        f'<div class="qt-tool" title="Market compare">{ICON_MARKET}</div>',
+        f'<div class="qt-tool" title="Technical overlays">{ICON_LAYERS}</div>',
+        f'<div class="qt-tool" title="Refresh feed">{ICON_REFRESH}</div>',
     ])
 
-    st.markdown(f"""
+    render_html(f"""
     <div class="qt-chart-shell">
     <div class="qt-chart-toolbar">
         <div class="qt-toolbar-group">{pills_html}</div>
         <div class="qt-toolbar-group">{tools_html}</div>
     </div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
     try:
         renderLightweightCharts(charts_to_render, key="quant_charts")

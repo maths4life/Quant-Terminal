@@ -3,24 +3,26 @@
 <head>
 <meta charset="UTF-8" />
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600;700&display=swap');
 
   :root {
     --accent: #2563EB;
-    --accent-dim: rgba(37,99,235,0.08);
-    --accent-strong: #1D4ED8;
-    --text-primary: #0F172A;
-    --text-secondary: #64748B;
-    --text-tertiary: #94A3B8;
-    --border: #E2E8F0;
-    --bg-elev: #F8FAFC;
-    --shadow-sm: 0 1px 2px rgba(15,23,42,0.04);
-    --shadow-md: 0 10px 28px rgba(15,23,42,0.12);
+    --accent-dim: rgba(37,99,235,0.18);
+    --accent-strong: #3B82F6;
+    --text-primary: #FAFAFA;
+    --text-secondary: #A1A1AA;
+    --text-tertiary: #71717A;
+    --border: #313131;
+    --border-strong: #3F3F46;
+    --surface-primary: #181818;
+    --surface-elev: #1F1F1F;
+    --surface-hover: #272727;
+    --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.45);
   }
   * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0; background: transparent;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
     overflow: visible;
   }
   #qs-root { position: relative; width: 100%; }
@@ -28,68 +30,70 @@
   .qs-input-wrap {
     position: relative;
     display: flex; align-items: center;
-    background: #fff;
+    background: var(--surface-primary);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    box-shadow: var(--shadow-sm);
-    transition: border-color .15s ease, box-shadow .15s ease;
+    border-radius: 12px;
+    transition: border-color .2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow .2s cubic-bezier(0.22, 1, 0.36, 1);
     padding: 0 14px;
-    height: 52px;
+    height: 48px;
   }
   .qs-input-wrap.focused {
     border-color: var(--accent);
-    box-shadow: 0 0 0 4px var(--accent-dim);
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
   }
-  .qs-icon { flex-shrink: 0; width: 18px; height: 18px; color: var(--text-tertiary); margin-right: 10px; transition: color .15s ease; }
+  .qs-icon { flex-shrink: 0; width: 18px; height: 18px; color: var(--text-tertiary); margin-right: 10px; }
   .qs-icon svg { width: 100%; height: 100%; display: block; }
   .qs-input-wrap.focused .qs-icon { color: var(--accent); }
 
   #qs-input {
     flex: 1; min-width: 0; border: none; outline: none; background: transparent;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 16px; font-weight: 600; color: var(--text-primary);
+    font-family: 'Geist Mono', monospace;
+    font-size: 15px; font-weight: 600; color: var(--text-primary);
     height: 100%;
   }
-  #qs-input::placeholder { color: var(--text-tertiary); font-weight: 500; }
+  #qs-input::placeholder { color: var(--text-tertiary); font-weight: 400; }
 
   .qs-clear {
-    flex-shrink: 0; width: 26px; height: 26px; border-radius: 7px; margin-left: 4px;
+    flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px; margin-left: 4px;
     display: none; align-items: center; justify-content: center;
-    color: var(--text-tertiary); cursor: pointer; border: none; background: var(--bg-elev);
-    font-size: 13px; line-height: 1; padding: 0;
+    color: var(--text-tertiary); cursor: pointer; border: 1px solid var(--border); background: var(--surface-hover);
+    font-size: 11px; line-height: 1; padding: 0;
   }
   .qs-clear.show { display: flex; }
-  .qs-clear:hover { color: var(--text-primary); background: var(--border); }
+  .qs-clear:hover { color: var(--text-primary); border-color: var(--border-strong); }
 
   .qs-enter-hint {
-    flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    flex-shrink: 0; font-family: 'Geist Mono', monospace; font-size: 11px;
     font-weight: 600; color: var(--text-tertiary);
-    border: 1px solid var(--border); border-radius: 6px; padding: 3px 7px;
+    border: 1px solid var(--border); background: var(--surface-elev); border-radius: 6px; padding: 3px 7px;
     margin-left: 8px; white-space: nowrap;
   }
 
   .qs-dropdown {
-    position: absolute; top: calc(100% + 8px); left: 0; right: 0;
-    background: #fff; border: 1px solid var(--border); border-radius: 14px;
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+    background: var(--surface-primary); border: 1px solid var(--border); border-radius: 12px;
     box-shadow: var(--shadow-md);
     padding: 6px; display: none; max-height: 360px; overflow-y: auto;
+    z-index: 999;
   }
   .qs-dropdown.open { display: block; }
 
   .qs-section-label {
     font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
-    color: var(--text-tertiary); padding: 8px 10px 6px 10px;
+    color: var(--text-tertiary); padding: 8px 10px 4px 10px;
+    font-family: 'Geist', sans-serif;
   }
 
   .qs-item {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    padding: 9px 10px; border-radius: 9px; cursor: pointer;
-    transition: background .1s ease;
+    padding: 8px 10px; border-radius: 8px; cursor: pointer;
+    transition: background .15s cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .qs-item:hover, .qs-item.active { background: var(--accent-dim); }
+  .qs-item:hover, .qs-item.active { background: var(--surface-hover); }
   .qs-item-left { display: flex; align-items: baseline; gap: 9px; min-width: 0; }
   .qs-item-symbol {
-    font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13.5px;
+    font-family: 'Geist Mono', monospace; font-weight: 600; font-size: 13.5px;
     color: var(--text-primary); white-space: nowrap;
   }
   .qs-item-name {
@@ -99,10 +103,10 @@
   .qs-item.active .qs-item-symbol, .qs-item.active .qs-item-name { color: var(--accent-strong); }
   .qs-item mark { background: transparent; color: var(--accent-strong); font-weight: 700; padding: 0; }
   .qs-item-tag {
-    flex-shrink: 0; font-size: 10px; font-weight: 700; letter-spacing: .05em;
-    color: var(--text-tertiary); background: var(--bg-elev);
-    border: 1px solid var(--border); border-radius: 5px; padding: 2px 6px;
-    text-transform: uppercase;
+    flex-shrink: 0; font-size: 10px; font-weight: 600; letter-spacing: .05em;
+    color: var(--text-tertiary); background: var(--surface-elev);
+    border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px;
+    text-transform: uppercase; font-family: 'Geist Mono', monospace;
   }
   .qs-empty { padding: 14px 10px; text-align: center; color: var(--text-tertiary); font-size: 12.5px; }
 </style>
@@ -133,7 +137,6 @@
   var clearBtn = document.getElementById("qs-clear");
   var dropdown = document.getElementById("qs-dropdown");
 
-  // ── Streamlit component protocol (raw postMessage — no external JS lib needed) ──
   function sendMessage(type, data) {
     var payload = Object.assign({ isStreamlitMessage: true, type: type }, data);
     window.parent.postMessage(payload, "*");
@@ -143,7 +146,7 @@
   function setFrameHeight() {
     var h = isOpen
       ? inputWrap.getBoundingClientRect().height + dropdown.scrollHeight + 16
-      : 60;
+      : 56;
     sendMessage("streamlit:setFrameHeight", { height: Math.ceil(h) });
   }
 
@@ -315,7 +318,6 @@
     POPULAR = (args.popular || []).map(function (p) {
       return { symbol: p.symbol, name: p.name, tag: p.tag || "" };
     });
-    // Never clobber what the user is actively typing.
     if (document.activeElement !== input) {
       input.value = args.current_ticker || "";
     }
