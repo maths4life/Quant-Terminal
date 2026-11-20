@@ -3,11 +3,9 @@ from utils.helpers import render_html
 
 PERIODS = ["1mo", "3mo", "6mo", "1y", "2y", "5y", "max"]
 
-# Display-only labels for the period chips — the underlying values in
-# PERIODS (used everywhere else, e.g. fetch_data) are unchanged.
 PERIOD_LABELS = {
     "1mo": "1M", "3mo": "3M", "6mo": "6M", "1y": "1Y",
-    "2y": "2Y", "5y": "5Y", "max": "MAX",
+    "2y": "2Y", "5y": "5Y", "max": "Max",
 }
 
 INTERVALS = {
@@ -17,11 +15,8 @@ INTERVALS = {
 }
 
 
-def _section_open(icon, label):
-    render_html(
-        f"""<div class="qt-side-section">
-        <div class="qt-side-head">{icon}<span>{label}</span></div>"""
-    )
+def _section_open(label):
+    render_html(f'<div class="qt-side-section"><div class="qt-side-head">{label}</div>')
 
 
 def _section_close():
@@ -34,33 +29,14 @@ def _sublabel(text):
 
 def render_sidebar(market_status, dot_class, ICON_TIME, ICON_LAYERS, ICON_CANDLE, ICON_GEAR):
     with st.sidebar:
-
-        # ── HEADER ──────────────────────────────────────────────────
-        render_html(
-            """
-        <div style="
-            display:flex; align-items:center; gap:.75rem;
-            padding:.4rem .25rem 1rem .25rem;
-            border-bottom:1px solid var(--border);
-            margin-bottom:1rem;
-        ">
-            <div class="qt-logo">Q</div>
-            <div>
-                <div class="qt-title" style="font-size:.84rem;">Quant Terminal</div>
-                <div class="qt-subtitle">Trading Workspace</div>
-            </div>
-        </div>
-        """
-        )
-
-        # ── TIME FRAME ──────────────────────────────────────────────
-        _section_open(ICON_TIME, "Time Frame")
+        # ── TIMEFRAME ───────────────────────────────────────────────
+        _section_open("Timeframe")
 
         _sublabel("Period")
         with st.container(key="qt_period_wrap"):
             period = st.radio(
                 "Period", PERIODS, horizontal=True, index=3,
-                format_func=lambda p: PERIOD_LABELS.get(p, p.upper()),
+                format_func=lambda p: PERIOD_LABELS.get(p, p),
                 label_visibility="collapsed", key="qt_period",
             )
 
@@ -73,48 +49,42 @@ def render_sidebar(market_status, dot_class, ICON_TIME, ICON_LAYERS, ICON_CANDLE
         interval = INTERVALS[interval_label]
 
         _section_close()
-        st.divider()
 
-        # ── INDICATORS ──────────────────────────────────────────────
-        _section_open(ICON_LAYERS, "Indicators")
+        # ── TECHNICAL OVERLAYS (No emojis, clean labels) ────────────
+        _section_open("Overlays")
 
-        show_ma20 = st.checkbox("📈  MA 20", value=True, key="qt_ma20")
-        show_ma50 = st.checkbox("📊  MA 50", value=True, key="qt_ma50")
-        show_vwap = st.checkbox("〰️  VWAP", value=False, key="qt_vwap")
-        show_prevc = st.checkbox("📍  Previous Close", value=True, key="qt_prevc")
+        show_ma20 = st.checkbox("20-day moving average", value=True, key="qt_ma20")
+        show_ma50 = st.checkbox("50-day moving average", value=True, key="qt_ma50")
+        show_vwap = st.checkbox("Volume weighted average", value=False, key="qt_vwap")
+        show_prevc = st.checkbox("Previous close line", value=True, key="qt_prevc")
 
         _section_close()
-        st.divider()
 
         # ── SUB PANELS ──────────────────────────────────────────────
-        _section_open(ICON_CANDLE, "Sub Panels")
+        _section_open("Sub panels")
 
-        show_volume = st.checkbox("📶  Volume", value=True, key="qt_volume")
-        show_rsi = st.checkbox("📉  RSI (14)", value=True, key="qt_rsi")
+        show_volume = st.checkbox("Volume histogram", value=True, key="qt_volume")
+        show_rsi = st.checkbox("Relative strength index (14)", value=True, key="qt_rsi")
 
         _section_close()
-        st.divider()
 
-        # ── ACTIONS ─────────────────────────────────────────────────
-        _section_open(ICON_GEAR, "Actions")
+        # ── ACTIONS & STATUS ────────────────────────────────────────
+        _section_open("Data feed")
 
-        if st.button("↻  Refresh Data", use_container_width=True, key="qt_refresh"):
-            with st.spinner("Refreshing market data…"):
+        if st.button("Refresh market data", use_container_width=True, key="qt_refresh"):
+            with st.spinner("Updating prices…"):
                 st.cache_data.clear()
-            st.toast("Market data refreshed", icon="✅")
+            st.toast("Data refreshed")
             st.rerun()
 
-        st.markdown(
+        status_class = "status-open" if "open" in market_status.lower() else "status-closed"
+        render_html(
             f"""
-            <div class="qt-side-status">
-                <div class="qt-chip" style="justify-content:center;width:100%;">
-                    <span class="qt-dot {dot_class}"></span>
-                    NSE &bull; {market_status}
-                </div>
-                <div class="qt-version-tag">Institutional Edition</div>
+            <div class="hm-side-feed">
+                <span class="hm-meta-item {status_class}">NSE {market_status.lower()}</span>
+                <span class="hm-feed-note">sub-second local cache</span>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
         _section_close()

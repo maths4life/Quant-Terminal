@@ -25,7 +25,6 @@ from utils.icons import (
 st.set_page_config(
     layout="wide",
     page_title="Quant Terminal",
-    page_icon="💹",
     initial_sidebar_state="expanded",
 )
 
@@ -85,7 +84,7 @@ show_volume = panels["volume"]
 show_rsi = panels["rsi"]
 
 # ── FETCH DATA ─────────────────────────────────────────────────────
-with st.spinner(f"Loading {ticker}  ·  {period}  ·  {interval_label}…"):
+with st.spinner(f"Loading {ticker}, {period}, {interval_label}…"):
     result = fetch_data(ticker, period, interval)
 
 if result is None:

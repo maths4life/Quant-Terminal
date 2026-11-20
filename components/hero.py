@@ -17,9 +17,9 @@ def render_hero(
     company_name="",
     profile_html="",
 ):
-    """Hallmark v2.0.0 instrument telemetry banner.
-    Solid high-contrast typography (no gradient text), no middle-dot meta strings,
-    no decorative status dots, and quiet hairline frame.
+    """Unslopped instrument telemetry banner.
+    Solid high-contrast typography, clear comparison baseline,
+    quiet hairline frame, 4px grid spacing.
     """
     change_tone = "delta-positive" if change >= 0 else "delta-negative"
     sign_str = "+" if change >= 0 else ""
@@ -49,8 +49,8 @@ def render_hero(
         <div class="hm-hero-secondary">
             <div class="hm-price-display">₹{close:,.2f}</div>
             <div class="hm-delta-badge {change_tone}">
-                <span>{sign_str}{change:.2f}%</span>
-                <span class="hm-delta-abs">{sign_str}{change_abs:,.2f}</span>
+                <span>{sign_str}{change:.2f}% vs prev close</span>
+                <span class="hm-delta-abs">({sign_str}{change_abs:,.2f})</span>
             </div>
             <div class="hm-time-label">{ist_now.strftime('%H:%M')} IST timestamp</div>
         </div>

@@ -18,6 +18,7 @@ import streamlit as st
 import yfinance as yf
 
 from components.search import render_search
+from utils.helpers import render_html
 
 
 def _md(html: str):
@@ -44,141 +45,138 @@ def _md(html: str):
 _INSIGHTS_CSS = """
 <style>
 .qt-ins-card{
-    background:var(--bg-card); border:1px solid var(--border);
-    border-radius:16px; padding:1.3rem 1.5rem; margin-bottom:1rem;
-    box-shadow:var(--shadow-sm);
+    background:var(--color-surface-panel); border:1px solid var(--color-border-hairline);
+    border-radius:var(--radius-lg); padding:var(--space-16); margin-bottom:var(--space-16);
 }
-.qt-ins-card.tight{ padding:1.1rem 1.3rem; }
+.qt-ins-card.tight{ padding:var(--space-12) var(--space-16); }
 
 /* At-a-glance grid */
 .qt-glance-grid{
-    display:grid; grid-template-columns:repeat(5,1fr); gap:.85rem;
-    margin-bottom:1.1rem;
+    display:grid; grid-template-columns:repeat(5,1fr); gap:var(--space-8);
+    margin-bottom:var(--space-12);
 }
 .qt-glance-tile{
-    background:var(--bg-elev); border:1px solid var(--border);
-    border-radius:12px; padding:.9rem 1rem; text-align:center;
+    background:var(--color-surface-raised); border:1px solid var(--color-border-hairline);
+    border-radius:var(--radius-md); padding:var(--space-12); text-align:center;
 }
 .qt-glance-label{
-    font-family:'Geist',sans-serif; font-size:.64rem; font-weight:700;
-    letter-spacing:.07em; text-transform:uppercase; color:var(--text-tertiary);
-    margin-bottom:.5rem;
+    font-size:11px; font-weight:500;
+    text-transform:none; letter-spacing:normal; color:var(--color-text-muted);
+    margin-bottom:var(--space-4);
 }
 .qt-glance-value{
-    font-family:'Geist Mono',monospace; font-size:1.05rem; font-weight:700;
-    color:var(--text-primary);
+    font-family:var(--font-mono); font-size:16px; font-weight:600;
+    color:var(--color-text-primary); font-variant-numeric:tabular-nums;
 }
-.qt-glance-value.stars{ letter-spacing:.1em; color:#D97706; font-size:1.15rem; }
-.qt-glance-value.bullish{ color:var(--bullish); }
-.qt-glance-value.bearish{ color:var(--bearish); }
-.qt-glance-value.neutral{ color:var(--text-secondary); }
-.qt-glance-value.warn{ color:#D97706; }
+.qt-glance-value.stars{ letter-spacing:.05em; color:#d97706; font-size:15px; }
+.qt-glance-value.bullish{ color:var(--color-gain); }
+.qt-glance-value.bearish{ color:var(--color-loss); }
+.qt-glance-value.neutral{ color:var(--color-text-secondary); }
+.qt-glance-value.warn{ color:#d97706; }
 
-.qt-strength-risk{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.qt-strength-risk{ display:grid; grid-template-columns:1fr 1fr; gap:var(--space-12); }
 @media (max-width:900px){
     .qt-glance-grid{ grid-template-columns:repeat(2,1fr); }
     .qt-strength-risk{ grid-template-columns:1fr; }
 }
 .qt-sr-block{
-    background:var(--bg-elev); border:1px solid var(--border);
-    border-radius:12px; padding:.9rem 1.05rem;
+    background:var(--color-surface-raised); border:1px solid var(--color-border-hairline);
+    border-radius:var(--radius-md); padding:var(--space-12);
 }
 .qt-sr-head{
-    font-family:'Geist',sans-serif; font-size:.68rem; font-weight:700;
-    letter-spacing:.06em; text-transform:uppercase; margin-bottom:.55rem;
+    font-size:12px; font-weight:600;
+    text-transform:none; margin-bottom:var(--space-8);
 }
-.qt-sr-block.strength .qt-sr-head{ color:var(--bullish); }
-.qt-sr-block.risk .qt-sr-head{ color:#D97706; }
+.qt-sr-block.strength .qt-sr-head{ color:var(--color-gain); }
+.qt-sr-block.risk .qt-sr-head{ color:#d97706; }
 .qt-sr-list{ list-style:none; margin:0; padding:0; }
 .qt-sr-list li{
-    font-family:'Geist',sans-serif; font-size:.8rem; color:var(--text-primary);
-    padding:.3rem 0; display:flex; gap:.5rem; align-items:flex-start;
-    border-bottom:1px dashed var(--border);
+    font-size:13px; color:var(--color-text-primary);
+    padding:var(--space-4) 0; display:flex; gap:var(--space-8); align-items:flex-start;
+    border-bottom:1px solid var(--color-border-hairline);
 }
 .qt-sr-list li:last-child{ border-bottom:none; }
 
-/* Section headers use the existing qt-section-title look already in
-   the base stylesheet — no redefinition needed. */
-
 /* Tables */
-.qt-ins-table{ width:100%; border-collapse:collapse; margin-top:.4rem; }
+.qt-ins-table{ width:100%; border-collapse:collapse; margin-top:var(--space-8); }
 .qt-ins-table th{
-    font-family:'Geist',sans-serif; font-size:.66rem; font-weight:700;
-    letter-spacing:.05em; text-transform:uppercase; color:var(--text-tertiary);
-    text-align:right; padding:.55rem .7rem; border-bottom:1px solid var(--border-strong);
-    background:var(--bg-elev);
+    font-size:11px; font-weight:500;
+    text-transform:none; letter-spacing:normal; color:var(--color-text-muted);
+    text-align:right; padding:var(--space-8) var(--space-12); border-bottom:1px solid var(--color-border-subtle);
+    background:var(--color-surface-raised);
 }
 .qt-ins-table th:first-child{ text-align:left; }
 .qt-ins-table td{
-    font-family:'Geist Mono',monospace; font-size:.8rem; color:var(--text-primary);
-    text-align:right; padding:.55rem .7rem; border-bottom:1px solid var(--border);
+    font-family:var(--font-mono); font-size:13px; color:var(--color-text-primary);
+    text-align:right; padding:var(--space-8) var(--space-12); border-bottom:1px solid var(--color-border-hairline);
+    font-variant-numeric:tabular-nums;
 }
 .qt-ins-table td:first-child{
-    text-align:left; font-family:'Geist',sans-serif; font-weight:600; font-size:.8rem;
-    color:var(--text-secondary);
+    text-align:left; font-family:var(--font-sans); font-weight:500; font-size:13px;
+    color:var(--color-text-secondary);
 }
 .qt-ins-table tr:last-child td{ border-bottom:none; }
-.qt-ins-table td.up{ color:var(--bullish); }
-.qt-ins-table td.down{ color:var(--bearish); }
+.qt-ins-table td.up{ color:var(--color-gain); }
+.qt-ins-table td.down{ color:var(--color-loss); }
 
 /* Badges */
 .qt-badge{
-    display:inline-flex; align-items:center; gap:.3rem;
-    font-family:'Geist',sans-serif; font-size:.68rem; font-weight:700;
-    padding:.22rem .6rem; border-radius:999px; white-space:nowrap;
+    display:inline-flex; align-items:center; gap:var(--space-4);
+    font-size:11px; font-weight:500;
+    padding:2px var(--space-8); border-radius:var(--radius-sm); white-space:nowrap;
 }
-.qt-badge.bullish{ color:var(--bullish); background:var(--bullish-dim); }
-.qt-badge.bearish{ color:var(--bearish); background:var(--bearish-dim); }
-.qt-badge.neutral{ color:var(--text-secondary); background:var(--bg-elev); border:1px solid var(--border); }
-.qt-badge.warn{ color:#D97706; background:rgba(217,119,6,0.10); }
+.qt-badge.bullish{ color:var(--color-gain); background:var(--color-gain-dim); }
+.qt-badge.bearish{ color:var(--color-loss); background:var(--color-loss-dim); }
+.qt-badge.neutral{ color:var(--color-text-secondary); background:var(--color-surface-raised); border:1px solid var(--color-border-hairline); }
+.qt-badge.warn{ color:#d97706; background:rgba(217,119,6,0.12); }
 
 /* Observation list */
 .qt-obs-list{ list-style:none; margin:0; padding:0; }
 .qt-obs-list li{
-    font-family:'Geist',sans-serif; font-size:.85rem; color:var(--text-primary);
-    padding:.55rem 0; border-bottom:1px solid var(--border);
-    display:flex; gap:.6rem; align-items:flex-start; line-height:1.45;
+    font-size:13px; color:var(--color-text-primary);
+    padding:var(--space-8) 0; border-bottom:1px solid var(--color-border-hairline);
+    display:flex; gap:var(--space-8); align-items:flex-start; line-height:1.45;
 }
 .qt-obs-list li:last-child{ border-bottom:none; }
-.qt-obs-icon{ flex-shrink:0; font-size:.95rem; margin-top:.05rem; }
+.qt-obs-icon{ flex-shrink:0; font-size:13px; margin-top:2px; }
 
 /* Valuation metric rows */
 .qt-val-row{
-    display:grid; grid-template-columns:140px 100px 1fr; gap:1rem;
-    align-items:start; padding:.7rem 0; border-bottom:1px solid var(--border);
+    display:grid; grid-template-columns:140px 100px 1fr; gap:var(--space-16);
+    align-items:start; padding:var(--space-8) 0; border-bottom:1px solid var(--color-border-hairline);
 }
 .qt-val-row:last-child{ border-bottom:none; }
-.qt-val-label{ font-family:'Geist',sans-serif; font-weight:700; font-size:.78rem; color:var(--text-primary); }
-.qt-val-num{ font-family:'Geist Mono',monospace; font-weight:700; font-size:.88rem; color:var(--text-primary); }
-.qt-val-note{ font-family:'Geist',sans-serif; font-size:.78rem; color:var(--text-secondary); line-height:1.45; }
+.qt-val-label{ font-weight:500; font-size:13px; color:var(--color-text-primary); }
+.qt-val-num{ font-family:var(--font-mono); font-weight:500; font-size:13px; color:var(--color-text-primary); font-variant-numeric:tabular-nums; }
+.qt-val-note{ font-size:13px; color:var(--color-text-secondary); line-height:1.45; }
 
 /* Checklist */
-.qt-checklist{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem .1rem; }
+.qt-checklist{ display:grid; grid-template-columns:1fr 1fr; gap:var(--space-8); }
 @media (max-width:900px){ .qt-checklist{ grid-template-columns:1fr; } }
 .qt-check-row{
     display:flex; align-items:center; justify-content:space-between;
-    background:var(--bg-elev); border:1px solid var(--border);
-    border-radius:9px; padding:.55rem .85rem;
+    background:var(--color-surface-raised); border:1px solid var(--color-border-hairline);
+    border-radius:var(--radius-sm); padding:var(--space-8) var(--space-12);
 }
-.qt-check-label{ font-family:'Geist',sans-serif; font-size:.8rem; font-weight:600; color:var(--text-primary); }
+.qt-check-label{ font-size:13px; font-weight:500; color:var(--color-text-primary); }
 
 /* Snapshot strip */
-.qt-snapshot-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:.85rem; }
+.qt-snapshot-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-8); }
 @media (max-width:900px){ .qt-snapshot-grid{ grid-template-columns:repeat(2,1fr); } }
 .qt-snapshot-tile{
-    background:var(--bg-elev); border:1px solid var(--border);
-    border-radius:12px; padding:1rem; text-align:center;
+    background:var(--color-surface-raised); border:1px solid var(--color-border-hairline);
+    border-radius:var(--radius-md); padding:var(--space-12); text-align:center;
 }
 .qt-snapshot-kicker{
-    font-family:'Geist',sans-serif; font-size:.64rem; font-weight:700;
-    letter-spacing:.07em; text-transform:uppercase; color:var(--text-tertiary);
-    margin-bottom:.5rem;
+    font-size:11px; font-weight:500;
+    text-transform:none; letter-spacing:normal; color:var(--color-text-muted);
+    margin-bottom:var(--space-4);
 }
-.qt-snapshot-value{ font-family:'Geist Mono',monospace; font-weight:700; font-size:1.1rem; }
+.qt-snapshot-value{ font-family:var(--font-mono); font-weight:600; font-size:16px; font-variant-numeric:tabular-nums; }
 
 .qt-ins-caption{
-    font-family:'Geist Mono',monospace; font-size:.68rem; color:var(--text-tertiary);
-    margin-top:.6rem;
+    font-size:11px; color:var(--color-text-muted);
+    margin-top:var(--space-8);
 }
 </style>
 """
@@ -526,7 +524,7 @@ def _badge(text, kind):
 # SECTION RENDERERS
 # ════════════════════════════════════════════════════════════════════
 def _section_title(text):
-    st.markdown(f'<div class="qt-section-title">{text}</div>', unsafe_allow_html=True)
+    render_html(f'<h2 class="hm-section-head">{text}</h2>')
 
 
 def _render_top_summary(ctx):
@@ -579,9 +577,9 @@ def _render_top_summary(ctx):
 
     _md(
         f'<div class="qt-ins-card">'
-        f'<div class="qt-tag" style="display:inline-flex;margin-bottom:.9rem;">🧭 At a Glance</div>'
+        f'<div class="hm-tag" style="display:inline-flex;margin-bottom:var(--space-12);">At a glance</div>'
         f'{tiles}{sr}'
-        f'<div class="qt-ins-caption">All labels below are generated by deterministic rules over yfinance data — no AI model or recommendation engine is involved.</div>'
+        f'<div class="qt-ins-caption">Deterministic rules over yfinance data without external model dependencies.</div>'
         f'</div>'
     )
 
@@ -1013,16 +1011,21 @@ def render_insights_page(ticker: str):
 
     _md(
         f"""
-        <div class="qt-hero" style="padding: 1.4rem 1.6rem; margin-bottom: 1rem;">
-            <div class="qt-hero-grid">
-                <div class="qt-hero-left">
-                    <div class="qt-tag" style="display:inline-flex;">📊 AI Insights · Research Dashboard</div>
-                    <div class="qt-ticker">{ticker}</div>
-                    <div class="qt-meta">Deterministic, rule-based research — no LLM or external AI API is used on this page.</div>
+        <div class="hm-hero-card" style="margin-bottom: var(--space-16);">
+            <div class="hm-hero-grid">
+                <div class="hm-hero-primary">
+                    <div class="hm-tag-row">
+                        <span class="hm-tag">Research insights</span>
+                        <span class="hm-tag">Deterministic model</span>
+                    </div>
+                    <div class="hm-ticker-title">
+                        <h1 class="hm-symbol">{ticker}</h1>
+                    </div>
+                    <div class="hm-time-label">Rule-based quantitative diagnostics calculated from raw market data</div>
                 </div>
-                <div class="qt-hero-right">
-                    <a href="?page=home" target="_self" class="qt-nav-btn">
-                        <span>←</span>Back to Terminal
+                <div class="hm-hero-secondary">
+                    <a href="?page=terminal" target="_self" class="hm-nav-link" style="border:1px solid var(--color-border-hairline); display:inline-block;">
+                        Back to terminal
                     </a>
                 </div>
             </div>

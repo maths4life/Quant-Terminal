@@ -1,38 +1,37 @@
-/* hallmark v2.0.0 · theme: graphite · genre: modern-minimal · job: research · signature: telemetry-instrument */
-/* critique: quiet chrome, high density, authentic market telemetry without decorative dots, uppercase tracking or fake claims */
+/* unslop · direction: exact, quiet, utilitarian · world: trading desk instruments · moment: live candlestick engine */
 
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap');
 
 :root {
-    /* Palette: Graphite Ramp */
-    --color-bg-base: #0b0c0e;
-    --color-surface-panel: #111215;
-    --color-surface-raised: #16181d;
-    --color-surface-hover: #1e2027;
+    /* ── PASS 2: NEUTRAL RAMP (Slate-Graphite) ── */
+    --color-bg-base: #0d0e12;
+    --color-surface-panel: #13151a;
+    --color-surface-raised: #1a1c23;
+    --color-surface-hover: #22252f;
     
-    /* Hairlines */
-    --color-border-hairline: #21232a;
-    --color-border-subtle: #2a2c35;
+    /* Hairlines: 6-10% opacity equivalent on neutral */
+    --color-border-hairline: #23252d;
+    --color-border-subtle: #2d303b;
     --color-border-focus: #2563eb;
     
     /* Text roles */
-    --color-text-primary: #f3f4f6;
-    --color-text-secondary: #9ca3af;
-    --color-text-muted: #6b7280;
+    --color-text-primary: #f1f3f7;
+    --color-text-secondary: #949ba8;
+    --color-text-muted: #616875;
     
-    /* Semantic telemetry */
+    /* Restrained accent & semantic colors */
+    --color-accent: #2563eb;
+    --color-accent-hover: #1d4ed8;
     --color-gain: #16a34a;
     --color-gain-dim: rgba(22, 163, 74, 0.12);
     --color-loss: #dc2626;
     --color-loss-dim: rgba(220, 38, 38, 0.12);
-    --color-accent: #2563eb;
-    --color-accent-hover: #1d4ed8;
     
-    /* Font tokens */
+    /* ── PASS 5: TYPE ── */
     --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'Geist Mono', monospace;
     
-    /* Spacing & rhythm */
+    /* ── PASS 1: SPACING (4px Grid) ── */
     --space-4: 4px;
     --space-8: 8px;
     --space-12: 12px;
@@ -40,64 +39,40 @@
     --space-20: 20px;
     --space-24: 24px;
     --space-32: 32px;
+    --space-40: 40px;
     --space-48: 48px;
     
-    /* Radii */
+    /* ── PASS 7: NESTED RADII ── */
     --radius-sm: 4px;
     --radius-md: 6px;
-    --radius-lg: 8px;
+    --radius-lg: 10px;
     --radius-full: 9999px;
 }
 
-/* ── THE FLOOR (Hallmark v2.0.0 Non-Waivable Rules) ─────────────── */
-
-/* Floor 4: overflow-x: clip on both html and body */
+/* ── PASS 1 & 6: BASE LAYOUT & RESET ────────────────────────────── */
 html, body {
     overflow-x: clip !important;
     background-color: var(--color-bg-base) !important;
     color: var(--color-text-primary) !important;
     font-family: var(--font-sans) !important;
-    letter-spacing: normal !important;
     -webkit-font-smoothing: antialiased;
+    letter-spacing: normal !important;
 }
 
 *, *::before, *::after {
     box-sizing: border-box;
-    font-style: normal !important; /* Floor 3: Never italic */
+    font-style: normal !important;
 }
 
-/* Floor 5: Display heads carry overflow-wrap: break-word; min-width: 0 */
-h1, h2, h3, h4, h5, h6, .hm-symbol {
-    overflow-wrap: break-word;
-    min-width: 0;
-    font-weight: 600;
-    letter-spacing: -0.015em;
-    margin: 0;
+/* Tabular figures for all numeric outputs */
+code, kbd, samp, .hm-symbol, .hm-price-display, .hm-delta-badge, [data-testid="stMetricValue"], [data-testid="stMetricDelta"] {
+    font-family: var(--font-mono) !important;
+    font-variant-numeric: tabular-nums !important;
 }
 
-/* Floor 6: Interactive elements have :focus-visible, appearing instantly */
-a:focus-visible,
-button:focus-visible,
-input:focus-visible,
-[role="button"]:focus-visible,
-.hm-nav-link:focus-visible,
-.hm-tool-btn:focus-visible {
-    outline: 2px solid var(--color-border-focus) !important;
-    outline-offset: 1px !important;
-}
-
-/* Floor 7: prefers-reduced-motion fallback */
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-
-/* Floor 14: Container capped and centred at 1920 */
+/* Fluid dashboard container capped around 1360px */
 .block-container {
-    padding: var(--space-12) var(--space-24) var(--space-48) var(--space-24) !important;
+    padding: var(--space-12) var(--space-20) var(--space-48) var(--space-20) !important;
     max-width: 1360px !important;
     margin-left: auto !important;
     margin-right: auto !important;
@@ -111,19 +86,29 @@ header[data-testid="stHeader"] {
     height: 2.25rem;
 }
 
-/* Reopen control */
 [data-testid="collapsedControl"] {
     background: var(--color-surface-panel) !important;
     border: 1px solid var(--color-border-hairline) !important;
     border-radius: var(--radius-md) !important;
-    top: 0.5rem !important;
+    top: var(--space-8) !important;
 }
 [data-testid="collapsedControl"] svg {
     fill: var(--color-text-secondary) !important;
     stroke: var(--color-text-secondary) !important;
 }
 
-/* ── NAVBAR (Quiet Chrome, Floor 9 & 10) ─────────────────────────── */
+/* Instant focus-visible on all interactive elements */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+[role="button"]:focus-visible,
+.hm-nav-link:focus-visible,
+.hm-tool-btn:focus-visible {
+    outline: 2px solid var(--color-border-focus) !important;
+    outline-offset: 1px !important;
+}
+
+/* ── PASS 6: NAVIGATION (Quiet Chrome) ───────────────────────────── */
 .hm-navbar {
     display: flex;
     align-items: center;
@@ -135,6 +120,7 @@ header[data-testid="stHeader"] {
     border-radius: var(--radius-lg);
     padding: var(--space-8) var(--space-16);
     margin-bottom: var(--space-16);
+    height: 48px;
 }
 
 .hm-brand {
@@ -159,7 +145,7 @@ header[data-testid="stHeader"] {
     place-items: center;
     font-family: var(--font-mono);
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--color-accent);
 }
 .hm-wordmark {
@@ -168,7 +154,6 @@ header[data-testid="stHeader"] {
     color: var(--color-text-primary);
 }
 
-/* Nav Group: Floor 9 (Sentence case, untracked) */
 .hm-nav-group {
     display: flex;
     align-items: center;
@@ -194,7 +179,6 @@ header[data-testid="stHeader"] {
     font-weight: 600;
 }
 
-/* Meta Group: Floor 10 (No middle dots, no decorative pulsing dots) */
 .hm-meta-group {
     display: flex;
     align-items: center;
@@ -202,17 +186,17 @@ header[data-testid="stHeader"] {
 }
 .hm-meta-item {
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: 11px;
     color: var(--color-text-muted);
     background: var(--color-surface-raised);
     border: 1px solid var(--color-border-hairline);
-    padding: 3px var(--space-8);
+    padding: 2px var(--space-8);
     border-radius: var(--radius-sm);
 }
 .hm-meta-item.status-open {
     color: var(--color-gain);
-    border-color: rgba(22, 163, 74, 0.25);
     background: var(--color-gain-dim);
+    border-color: rgba(22, 163, 74, 0.2);
 }
 .hm-meta-item.status-closed {
     color: var(--color-text-muted);
@@ -226,7 +210,7 @@ header[data-testid="stHeader"] {
     border: 1px solid var(--color-border-hairline);
     display: grid;
     place-items: center;
-    color: var(--color-text-secondary);
+    color: var(--color-text-muted);
     cursor: pointer;
     transition: color 150ms ease, border-color 150ms ease;
 }
@@ -239,7 +223,7 @@ header[data-testid="stHeader"] {
     height: 14px;
 }
 
-/* ── HERO BANNER (Quiet telemetry, Floor 11 solid text) ──────────── */
+/* ── PASS 4 & 6: TELEMETRY HERO ─────────────────────────────────── */
 .hm-hero-card {
     background: var(--color-surface-panel);
     border: 1px solid var(--color-border-hairline);
@@ -285,7 +269,7 @@ header[data-testid="stHeader"] {
     font-family: var(--font-mono);
     font-size: 26px;
     font-weight: 600;
-    color: var(--color-text-primary); /* Floor 11: Solid color, no gradient text */
+    color: var(--color-text-primary);
     line-height: 1.1;
 }
 .hm-asset-class {
@@ -301,7 +285,7 @@ header[data-testid="stHeader"] {
 
 .hm-hero-secondary {
     text-align: right;
-    min-width: 180px;
+    min-width: 200px;
 }
 .hm-price-display {
     font-family: var(--font-mono);
@@ -341,7 +325,6 @@ header[data-testid="stHeader"] {
     color: var(--color-text-muted);
 }
 
-/* Profile strip chips */
 .hm-profile-row {
     display: flex;
     gap: var(--space-8);
@@ -357,17 +340,17 @@ header[data-testid="stHeader"] {
     border-radius: var(--radius-sm);
 }
 
-/* ── SECTION HEADS (Floor 9: Sentence case, untracked) ───────────── */
+/* ── SECTION HEADINGS (Sentence case, no tracking) ───────────────── */
 .hm-section-head {
     font-size: 13px;
     font-weight: 600;
     color: var(--color-text-secondary);
-    text-transform: none !important; /* Floor 9: Never tracked capitals */
+    text-transform: none !important;
     letter-spacing: normal !important;
     margin: var(--space-20) 0 var(--space-8) 0;
 }
 
-/* ── METRIC CARDS ────────────────────────────────────────────────── */
+/* ── STAT METRIC CARDS ───────────────────────────────────────────── */
 [data-testid="stMetric"] {
     background: var(--color-surface-panel) !important;
     border: 1px solid var(--color-border-hairline) !important;
@@ -379,7 +362,7 @@ header[data-testid="stHeader"] {
     font-family: var(--font-sans) !important;
     font-size: 12px !important;
     font-weight: 500 !important;
-    text-transform: none !important; /* Sentence case */
+    text-transform: none !important;
     letter-spacing: normal !important;
     color: var(--color-text-muted) !important;
 }
@@ -390,6 +373,7 @@ header[data-testid="stHeader"] {
     line-height: 1.3 !important;
     color: var(--color-text-primary) !important;
     font-weight: 600 !important;
+    font-variant-numeric: tabular-nums !important;
 }
 
 [data-testid="stMetricDelta"] {
@@ -446,7 +430,7 @@ header[data-testid="stHeader"] {
     transform: translate(-50%, -50%);
 }
 
-/* ── CHART INSTRUMENT FRAME ──────────────────────────────────────── */
+/* ── PASS 8: ONE BRIGHT ELEMENT (TradingView Chart) ──────────────── */
 .hm-chart-frame {
     background: var(--color-surface-panel);
     border: 1px solid var(--color-border-hairline);
@@ -517,13 +501,14 @@ header[data-testid="stHeader"] {
 }
 .hm-tool-btn svg { width: 13px; height: 13px; }
 
-/* ── SIDEBAR (Quiet, 4px grid rhythm) ────────────────────────────── */
+/* ── SIDEBAR (Dense, 4px grid rhythm) ────────────────────────────── */
 [data-testid="stSidebar"] {
     background: var(--color-surface-panel) !important;
     border-right: 1px solid var(--color-border-hairline) !important;
+    width: 260px !important;
 }
 [data-testid="stSidebar"] .block-container {
-    padding: var(--space-16) var(--space-16) var(--space-48) var(--space-16) !important;
+    padding: var(--space-16) var(--space-12) var(--space-48) var(--space-12) !important;
 }
 
 .qt-side-section {
@@ -534,16 +519,12 @@ header[data-testid="stHeader"] {
     margin-bottom: var(--space-8);
 }
 .qt-side-head {
-    display: flex;
-    align-items: center;
-    gap: var(--space-8);
     font-size: 12px;
     font-weight: 600;
     text-transform: none !important;
     color: var(--color-text-secondary);
     margin-bottom: var(--space-8);
 }
-.qt-side-head svg { width: 14px; height: 14px; stroke: var(--color-text-secondary); }
 
 .qt-side-sublabel {
     font-size: 11px;
@@ -553,10 +534,10 @@ header[data-testid="stHeader"] {
     margin: var(--space-4) 0;
 }
 
-/* Radio buttons inside sidebar */
+/* Radio buttons inside sidebar (segmented tabs) */
 [data-testid="stSidebar"] .stRadio > div {
     display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)) !important;
+    grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)) !important;
     gap: var(--space-4) !important;
 }
 [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label {
@@ -585,7 +566,7 @@ header[data-testid="stHeader"] {
     display: none !important;
 }
 
-/* Checkboxes */
+/* Checkboxes (dense rows) */
 [data-testid="stSidebar"] .stCheckbox {
     background: var(--color-surface-panel);
     border: 1px solid var(--color-border-hairline);
@@ -598,40 +579,36 @@ header[data-testid="stHeader"] {
     color: var(--color-text-secondary) !important;
 }
 
-/* Sidebar quick-ticker buttons */
-[data-testid="stSidebar"] .stButton button {
-    background: var(--color-surface-panel) !important;
+/* Buttons */
+.stButton button, [data-testid="stSidebar"] .stButton button {
+    background: var(--color-surface-raised) !important;
     border: 1px solid var(--color-border-hairline) !important;
-    border-radius: var(--radius-sm) !important;
-    color: var(--color-text-secondary) !important;
-    font-family: var(--font-mono) !important;
-    font-size: 11px !important;
-    padding: var(--space-4) var(--space-8) !important;
-    transition: color 150ms ease, border-color 150ms ease;
-}
-[data-testid="stSidebar"] .stButton button:hover {
-    color: var(--color-text-primary) !important;
-    border-color: var(--color-border-subtle) !important;
-}
-
-/* Primary buttons */
-.stButton button {
-    background: var(--color-accent) !important;
-    border: 1px solid var(--color-accent) !important;
     border-radius: var(--radius-md) !important;
-    color: #ffffff !important;
+    color: var(--color-text-primary) !important;
     font-family: var(--font-sans) !important;
-    font-size: 13px !important;
+    font-size: 12px !important;
     font-weight: 500 !important;
     padding: 6px var(--space-12) !important;
     cursor: pointer !important;
-    transition: background-color 150ms ease;
+    transition: background-color 150ms ease, border-color 150ms ease;
 }
-.stButton button:hover {
-    background: var(--color-accent-hover) !important;
+.stButton button:hover, [data-testid="stSidebar"] .stButton button:hover {
+    background-color: var(--color-surface-hover) !important;
+    border-color: var(--color-border-subtle) !important;
 }
 
-/* ── QUIET FOOTER (Floor 10) ─────────────────────────────────────── */
+.hm-side-feed {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+}
+.hm-feed-note {
+    font-size: 10px;
+    color: var(--color-text-muted);
+}
+
+/* ── QUIET FOOTER ────────────────────────────────────────────────── */
 .hm-footer {
     margin-top: var(--space-48);
     padding-top: var(--space-16);
