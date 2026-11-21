@@ -22,18 +22,8 @@ from utils.helpers import render_html
 
 
 def _md(html: str):
-    """Render trusted HTML via st.markdown.
-
-    The HTML fragments below are written as indented, multi-line
-    f-strings purely for source readability. Standard Markdown treats
-    any line indented 4+ spaces as a preformatted code block, so
-    rendering them as-is causes chunks of markup to show up as literal
-    text instead of being parsed as HTML. Collapsing every newline +
-    run of following whitespace onto a single line sidesteps that
-    entirely without changing the rendered layout (which is controlled
-    by the CSS, not by whitespace in the source).
-    """
-    st.markdown(re.sub(r"\n\s*", "", html), unsafe_allow_html=True)
+    """Render trusted HTML via render_html to prevent Markdown code block leaks."""
+    render_html(html)
 
 
 # ════════════════════════════════════════════════════════════════════

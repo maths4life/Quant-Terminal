@@ -6,11 +6,11 @@ import streamlit as st
 
 def render_html(html: str):
     """Safely render HTML in Streamlit without triggering Markdown code blocks.
-    Markdown specification interprets any line indented with 4+ spaces as a
-    preformatted code block (<pre><code>). Stripping leading indentation from
-    every line prevents this while preserving the exact DOM structure.
+    Python Markdown treats any line indented with 4+ spaces or lines after blank
+    lines as preformatted code blocks (<pre><code>). Collapsing lines and stripping
+    whitespace eliminates code block triggers while keeping the DOM structure intact.
     """
-    clean = re.sub(r"^[ \t]+", "", html.strip(), flags=re.MULTILINE)
+    clean = "".join(line.strip() for line in html.strip().splitlines())
     st.markdown(clean, unsafe_allow_html=True)
 
 

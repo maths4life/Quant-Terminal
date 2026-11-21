@@ -53,25 +53,25 @@ def render_sidebar(market_status, dot_class, ICON_TIME, ICON_LAYERS, ICON_CANDLE
         # ── TECHNICAL OVERLAYS (No emojis, clean labels) ────────────
         _section_open("Overlays")
 
-        show_ma20 = st.checkbox("20-day moving average", value=True, key="qt_ma20")
-        show_ma50 = st.checkbox("50-day moving average", value=True, key="qt_ma50")
-        show_vwap = st.checkbox("Volume weighted average", value=False, key="qt_vwap")
-        show_prevc = st.checkbox("Previous close line", value=True, key="qt_prevc")
+        show_ma20 = st.checkbox("20-Day Moving Average", value=True, key="qt_ma20")
+        show_ma50 = st.checkbox("50-Day Moving Average", value=True, key="qt_ma50")
+        show_vwap = st.checkbox("Volume-Weighted Average", value=False, key="qt_vwap")
+        show_prevc = st.checkbox("Previous Close Line", value=True, key="qt_prevc")
 
         _section_close()
 
         # ── SUB PANELS ──────────────────────────────────────────────
-        _section_open("Sub panels")
+        _section_open("Sub Panels")
 
-        show_volume = st.checkbox("Volume histogram", value=True, key="qt_volume")
-        show_rsi = st.checkbox("Relative strength index (14)", value=True, key="qt_rsi")
+        show_volume = st.checkbox("Volume Histogram", value=True, key="qt_volume")
+        show_rsi = st.checkbox("Relative Strength Index (14)", value=True, key="qt_rsi")
 
         _section_close()
 
         # ── ACTIONS & STATUS ────────────────────────────────────────
-        _section_open("Data feed")
+        _section_open("Data Feed")
 
-        if st.button("Refresh market data", use_container_width=True, key="qt_refresh"):
+        if st.button("Refresh Market Data", use_container_width=True, key="qt_refresh"):
             with st.spinner("Updating prices…"):
                 st.cache_data.clear()
             st.toast("Data refreshed")
@@ -80,9 +80,12 @@ def render_sidebar(market_status, dot_class, ICON_TIME, ICON_LAYERS, ICON_CANDLE
         status_class = "status-open" if "open" in market_status.lower() else "status-closed"
         render_html(
             f"""
-            <div class="hm-side-feed">
-                <span class="hm-meta-item {status_class}">NSE {market_status.lower()}</span>
-                <span class="hm-feed-note">sub-second local cache</span>
+            <div class="qt-side-feed">
+                <span class="qt-meta-pill {status_class}">
+                    <span class="qt-status-pulse"></span>
+                    <span>NSE {market_status.upper()}</span>
+                </span>
+                <span class="qt-feed-note">Sub-second local cache feed</span>
             </div>
             """
         )

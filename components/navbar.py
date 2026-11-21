@@ -6,12 +6,12 @@ IST = pytz.timezone("Asia/Kolkata")
 
 
 def render_navbar(market_open, market_status, icon_clock, icon_bell, icon_gear, active_page="terminal"):
-    """Hallmark v2.0.0 navigation bar.
-    Quiet chrome: no decorative status dots, no middle-dot meta strings,
-    no tracked small caps. Plain sentence-case labels and instant focus rings.
+    """UI/UX Pro Max Institutional Navigation Bar.
+    OLED dark palette, live pulse radar, active route indicators,
+    and high-contrast typography.
     """
     ist_now = datetime.now(IST)
-    status_text = "NSE open" if market_open else "NSE closed"
+    status_text = "NSE LIVE" if market_open else f"NSE {market_status.upper() if market_status else 'CLOSED'}"
     status_tone = "status-open" if market_open else "status-closed"
 
     terminal_active = "active" if active_page in ("terminal", "home", "") else ""
@@ -19,24 +19,31 @@ def render_navbar(market_open, market_status, icon_clock, icon_bell, icon_gear, 
 
     render_html(
         f"""
-<header class="hm-navbar">
-    <div class="hm-brand">
-        <a href="?page=terminal" target="_self" class="hm-brand-link">
-            <span class="hm-mark">Q</span>
-            <span class="hm-wordmark">Quant Terminal</span>
+<header class="qt-navbar">
+    <div class="qt-brand">
+        <a href="?page=terminal" target="_self" class="qt-brand-link">
+            <span class="qt-mark">Q</span>
+            <span class="qt-wordmark">Quant Terminal</span>
+            <span class="qt-pro-badge">PRO</span>
         </a>
     </div>
 
-    <nav class="hm-nav-group">
-        <a href="?page=terminal" target="_self" class="hm-nav-link {terminal_active}">Terminal</a>
-        <a href="?page=insights" target="_self" class="hm-nav-link {insights_active}">Research insights</a>
+    <nav class="qt-nav-group">
+        <a href="?page=terminal" target="_self" class="qt-nav-link {terminal_active}">Terminal</a>
+        <a href="?page=insights" target="_self" class="qt-nav-link {insights_active}">AI Insights</a>
     </nav>
 
-    <div class="hm-meta-group">
-        <span class="hm-meta-item {status_tone}">{status_text}</span>
-        <span class="hm-meta-item">{ist_now.strftime("%H:%M:%S")} IST</span>
-        <button type="button" class="hm-icon-control" title="Notifications" aria-label="Notifications">{icon_bell}</button>
-        <button type="button" class="hm-icon-control" title="Settings" aria-label="Settings">{icon_gear}</button>
+    <div class="qt-meta-group">
+        <span class="qt-meta-pill {status_tone}">
+            <span class="qt-status-pulse"></span>
+            <span>{status_text}</span>
+        </span>
+        <span class="qt-clock-pill">
+            {icon_clock}
+            <span>{ist_now.strftime("%H:%M:%S")} IST</span>
+        </span>
+        <button type="button" class="qt-icon-btn" title="Alerts & Notifications" aria-label="Notifications">{icon_bell}</button>
+        <button type="button" class="qt-icon-btn" title="Terminal Settings" aria-label="Settings">{icon_gear}</button>
     </div>
 </header>
 """

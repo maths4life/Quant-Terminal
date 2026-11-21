@@ -17,42 +17,50 @@ def render_hero(
     company_name="",
     profile_html="",
 ):
-    """Unslopped instrument telemetry banner.
-    Solid high-contrast typography, clear comparison baseline,
-    quiet hairline frame, 4px grid spacing.
+    """UI/UX Pro Max Instrument Telemetry Banner.
+    High-density layout, precise tabular numbers, and dynamic delta badges.
     """
-    change_tone = "delta-positive" if change >= 0 else "delta-negative"
-    sign_str = "+" if change >= 0 else ""
+    is_gain = change >= 0
+    change_tone = "gain" if is_gain else "loss"
+    sign_str = "+" if is_gain else ""
     ist_now = datetime.now(IST)
+
+    # Format RSI badge tone
+    rsi_tag_class = "highlight"
+    if "Overbought" in rsi_txt:
+        rsi_tag_class = "gain"
+    elif "Oversold" in rsi_txt:
+        rsi_tag_class = "loss"
 
     render_html(
         f"""
-<section class="hm-hero-card">
-    <div class="hm-hero-grid">
-        <div class="hm-hero-primary">
-            <div class="hm-tag-row">
-                <span class="hm-tag">{interval_label}</span>
-                <span class="hm-tag">{period} window</span>
-                <span class="hm-tag">RSI {rsi_txt}</span>
-                <span class="hm-tag">Updated {date_str}</span>
+<section class="qt-hero-card">
+    <div class="qt-hero-grid">
+        <div class="qt-hero-primary">
+            <div class="qt-ticker-row">
+                <h1 class="qt-symbol">{ticker}</h1>
+                <span class="qt-asset-pill">NSE: EQUITIES</span>
             </div>
 
-            <div class="hm-ticker-title">
-                <h1 class="hm-symbol">{ticker}</h1>
-                <span class="hm-asset-class">equity</span>
-            </div>
-
-            {f'<div class="hm-company-name">{company_name}</div>' if company_name else ''}
+            {f'<div class="qt-company-title">{company_name}</div>' if company_name else ''}
+            
             {profile_html}
+
+            <div class="qt-tags-row">
+                <span class="qt-tag highlight">{interval_label} Interval</span>
+                <span class="qt-tag">{period.upper()} Window</span>
+                <span class="qt-tag {rsi_tag_class}">RSI {rsi_txt}</span>
+                <span class="qt-tag">Updated {date_str}</span>
+            </div>
         </div>
 
-        <div class="hm-hero-secondary">
-            <div class="hm-price-display">₹{close:,.2f}</div>
-            <div class="hm-delta-badge {change_tone}">
-                <span>{sign_str}{change:.2f}% vs prev close</span>
-                <span class="hm-delta-abs">({sign_str}{change_abs:,.2f})</span>
+        <div class="qt-hero-secondary">
+            <div class="qt-price-display">₹{close:,.2f}</div>
+            <div class="qt-delta-pill {change_tone}">
+                <span>{sign_str}{change:.2f}%</span>
+                <span>({sign_str}₹{abs(change_abs):,.2f})</span>
             </div>
-            <div class="hm-time-label">{ist_now.strftime('%H:%M')} IST timestamp</div>
+            <div class="qt-time-stamp">Live Feed · {ist_now.strftime('%H:%M:%S')} IST</div>
         </div>
     </div>
 </section>

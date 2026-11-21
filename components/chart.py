@@ -4,36 +4,36 @@ from utils.helpers import render_html
 
 
 def base_opts(show_time=True):
-    """Hallmark v2.0.0 instrument configuration for Lightweight Charts.
-    - Neutral graphite surface: #141519
-    - Hairline border: #23252b
-    - Untracked secondary text: #9ca3af
-    - Geist Mono typography for numeric axis labels
+    """UI/UX Pro Max instrument configuration for Lightweight Charts.
+    - Neutral Obsidian surface: #0B0F19
+    - Hairline border: #1E293B
+    - High-contrast secondary text: #94A3B8
+    - JetBrains Mono typography for numeric axis labels
     """
     return {
         "layout": {
-            "background": {"type": "solid", "color": "#141519"},
-            "textColor": "#9ca3af",
+            "background": {"type": "solid", "color": "#0b0f19"},
+            "textColor": "#94a3b8",
             "fontSize": 11,
-            "fontFamily": "'Geist Mono', monospace",
+            "fontFamily": "'JetBrains Mono', 'Fira Code', 'Geist Mono', monospace",
         },
         "grid": {
-            "vertLines": {"color": "rgba(255, 255, 255, 0.025)"},
-            "horzLines": {"color": "rgba(255, 255, 255, 0.025)"},
+            "vertLines": {"color": "rgba(255, 255, 255, 0.03)"},
+            "horzLines": {"color": "rgba(255, 255, 255, 0.03)"},
         },
         "crosshair": {
             "mode": 1,
-            "vertLine": {"color": "rgba(59, 130, 246, 0.4)", "labelBackgroundColor": "#2563eb"},
-            "horzLine": {"color": "rgba(59, 130, 246, 0.4)", "labelBackgroundColor": "#2563eb"},
+            "vertLine": {"color": "rgba(59, 130, 246, 0.5)", "labelBackgroundColor": "#3b82f6"},
+            "horzLine": {"color": "rgba(59, 130, 246, 0.5)", "labelBackgroundColor": "#3b82f6"},
         },
         "rightPriceScale": {
-            "borderColor": "#23252b",
-            "textColor": "#9ca3af",
+            "borderColor": "#1e293b",
+            "textColor": "#94a3b8",
             "autoScale": True,
             "minValue": 0,
         },
         "timeScale": {
-            "borderColor": "#23252b",
+            "borderColor": "#1e293b",
             "timeVisible": show_time,
             "secondsVisible": False,
             "visible": show_time,
@@ -74,9 +74,9 @@ def render_chart(
     price_series = [{
         "type": "Candlestick", "data": candles,
         "options": {
-            "upColor": "#16a34a", "downColor": "#dc2626",
+            "upColor": "#22c55e", "downColor": "#ef4444",
             "borderVisible": False,
-            "wickUpColor": "#16a34a", "wickDownColor": "#dc2626",
+            "wickUpColor": "#22c55e", "wickDownColor": "#ef4444",
         }
     }]
 
@@ -85,7 +85,7 @@ def render_chart(
         price_series.append({
             "type": "Line",
             "data": [{"time": r["time"], "value": float(r["MA20"])} for _, r in ma20d.iterrows()],
-            "options": {"color": "#ca8a04", "lineWidth": 1.5}
+            "options": {"color": "#eab308", "lineWidth": 1.5}
         })
 
     if show_ma50 and last_ma50:
@@ -93,7 +93,7 @@ def render_chart(
         price_series.append({
             "type": "Line",
             "data": [{"time": r["time"], "value": float(r["MA50"])} for _, r in ma50d.iterrows()],
-            "options": {"color": "#2563eb", "lineWidth": 1.5}
+            "options": {"color": "#3b82f6", "lineWidth": 1.5}
         })
 
     if show_vwap and last_vwap:
@@ -101,21 +101,21 @@ def render_chart(
         price_series.append({
             "type": "Line",
             "data": [{"time": r["time"], "value": float(r["VWAP"])} for _, r in vwapd.iterrows()],
-            "options": {"color": "#9333ea", "lineWidth": 1.5}
+            "options": {"color": "#a855f7", "lineWidth": 1.5}
         })
 
     if show_prevc and prev_close == prev_close:
         price_series.append({
             "type": "Line",
             "data": [{"time": r["time"], "value": prev_close} for r in candles],
-            "options": {"color": "rgba(156, 163, 175, 0.4)", "lineWidth": 1, "lineStyle": 2}
+            "options": {"color": "rgba(148, 163, 184, 0.4)", "lineWidth": 1, "lineStyle": 2}
         })
 
     price_opts = base_opts(show_time=not (show_volume or show_rsi))
     price_opts["watermark"] = {
         "visible": True, "fontSize": 56,
         "horzAlign": "center", "vertAlign": "center",
-        "color": "rgba(255, 255, 255, 0.02)", "text": ticker,
+        "color": "rgba(255, 255, 255, 0.025)", "text": ticker,
     }
 
     charts_to_render = [{"chart": price_opts, "series": price_series}]
@@ -124,7 +124,7 @@ def render_chart(
         vol_src = df[["time", "Open", "Close", "Volume"]].dropna()
         vol_data = []
         for _, row in vol_src.iterrows():
-            c = "#16a34a" if float(row["Close"]) >= float(row["Open"]) else "#dc2626"
+            c = "#22c55e" if float(row["Close"]) >= float(row["Open"]) else "#ef4444"
             vol_data.append({"time": row["time"], "value": float(row["Volume"]), "color": c + "55"})
         vol_opts = base_opts(show_time=not show_rsi)
         vol_opts["rightPriceScale"]["minValue"] = 0
@@ -147,8 +147,8 @@ def render_chart(
             "chart": rsi_opts,
             "series": [
                 {"type": "Line", "data": rsi_data, "options": {"color": "#3b82f6", "lineWidth": 1.5}},
-                {"type": "Line", "data": ob_line, "options": {"color": "rgba(220, 38, 38, 0.35)", "lineWidth": 1, "lineStyle": 2}},
-                {"type": "Line", "data": os_line, "options": {"color": "rgba(22, 163, 74, 0.35)", "lineWidth": 1, "lineStyle": 2}},
+                {"type": "Line", "data": ob_line, "options": {"color": "rgba(239, 68, 68, 0.4)", "lineWidth": 1, "lineStyle": 2}},
+                {"type": "Line", "data": os_line, "options": {"color": "rgba(34, 197, 94, 0.4)", "lineWidth": 1, "lineStyle": 2}},
             ]
         })
 
@@ -164,34 +164,34 @@ def render_chart(
     for i, h in enumerate(heights):
         charts_to_render[i]["chart"]["height"] = h
 
-    # ── TOOLBAR ──────────────────────────────────────────────────────
+    # ── TOOLBAR (PRO MAX) ────────────────────────────────────────────
     def pill(on, label, swatch=None):
-        cls = "hm-pill on" if on else "hm-pill off"
-        sw = f'<span class="hm-swatch" style="background:{swatch};"></span>' if swatch else ""
+        cls = "qt-chart-pill on" if on else "qt-chart-pill off"
+        sw = f'<span class="qt-chart-swatch" style="background:{swatch};"></span>' if swatch else ""
         return f'<span class="{cls}">{sw}{label}</span>'
 
     pills_html = "".join([
-        pill(True, "Candles", "#16a34a"),
-        pill(show_ma20, "20-day MA", "#ca8a04"),
-        pill(show_ma50, "50-day MA", "#2563eb"),
-        pill(show_vwap, "VWAP", "#9333ea"),
-        pill(show_prevc, "Previous close", "#9ca3af"),
-        pill(show_volume, "Volume", "#6b7280"),
-        pill(show_rsi, "RSI 14", "#3b82f6"),
+        pill(True, "Candles", "#22c55e"),
+        pill(show_ma20, "20D MA", "#eab308"),
+        pill(show_ma50, "50D MA", "#3b82f6"),
+        pill(show_vwap, "VWAP", "#a855f7"),
+        pill(show_prevc, "Prev Close", "#94a3b8"),
+        pill(show_volume, "Volume", "#64748b"),
+        pill(show_rsi, "RSI (14)", "#3b82f6"),
     ])
 
     tools_html = "".join([
-        f'<button type="button" class="hm-tool-btn" title="Draw tools" aria-label="Draw tools">{ICON_TOOL}</button>',
-        f'<button type="button" class="hm-tool-btn" title="Compare" aria-label="Compare">{ICON_MARKET}</button>',
-        f'<button type="button" class="hm-tool-btn" title="Indicators" aria-label="Indicators">{ICON_LAYERS}</button>',
-        f'<button type="button" class="hm-tool-btn" title="Refresh" aria-label="Refresh">{ICON_REFRESH}</button>',
+        f'<button type="button" class="qt-tool-btn" title="Drawing Tools" aria-label="Drawing Tools">{ICON_TOOL}</button>',
+        f'<button type="button" class="qt-tool-btn" title="Compare Instrument" aria-label="Compare">{ICON_MARKET}</button>',
+        f'<button type="button" class="qt-tool-btn" title="Indicators Overlay" aria-label="Indicators">{ICON_LAYERS}</button>',
+        f'<button type="button" class="qt-tool-btn" title="Reset Chart Zoom" aria-label="Reset">{ICON_REFRESH}</button>',
     ])
 
     render_html(f"""
-    <div class="hm-chart-frame">
-        <div class="hm-chart-header">
-            <div class="hm-pill-cluster">{pills_html}</div>
-            <div class="hm-tool-cluster">{tools_html}</div>
+    <div class="qt-chart-frame">
+        <div class="qt-chart-header">
+            <div class="qt-pill-cluster">{pills_html}</div>
+            <div class="qt-tool-cluster">{tools_html}</div>
         </div>
     </div>
     """)
